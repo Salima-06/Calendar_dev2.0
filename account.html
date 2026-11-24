@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account Settings | Ducks In A Row</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Actor&family=Crimson+Text:wght@400;600&family=DM+Sans:wght@400;500;700&family=Delicious+Handrawn&family=Roboto+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="auth.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  .account-wrap{padding-bottom:clamp(42px,7vw,90px)}
+  .account-intro{margin:clamp(22px,4vw,42px) 0 26px;max-width:760px}
+  .account-intro h2{margin:0 0 8px;font:600 clamp(30px,5vw,46px)/1.05 "Crimson Text",Georgia,serif;color:var(--cream,#FEF5DB)}
+  .account-intro p{margin:0;color:var(--muted,#A9B5BC);font:400 15px/1.6 "DM Sans",Arial,sans-serif}
+  .settings-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;max-width:850px}
+  .settings-card{padding:clamp(20px,3.5vw,30px);border:1px solid var(--line,rgba(254,245,219,.22));border-radius:var(--radius,20px);background:var(--bg-soft,#2F3A41)}
+  .card-heading{display:flex;align-items:flex-start;gap:14px;margin-bottom:22px}
+  .card-icon{display:grid;place-items:center;flex:none;width:44px;height:44px;border:1px solid var(--gold,#DFB230);border-radius:14px;color:var(--gold,#DFB230)}
+  .card-icon svg{width:22px;height:22px}
+  .card-heading h3{margin:0 0 4px;color:var(--cream,#FEF5DB);font:600 25px/1.15 "Crimson Text",Georgia,serif}
+  .card-heading p{margin:0;color:var(--muted,#A9B5BC);font:400 13px/1.5 "DM Sans",Arial,sans-serif}
+  .field{display:grid;gap:8px;margin-bottom:18px}
+  .field label{color:var(--cream,#FEF5DB);font:700 13px/1.3 "DM Sans",Arial,sans-serif}
+  .field input{box-sizing:border-box;width:100%;min-height:49px;padding:0 14px;border:2px solid var(--line,rgba(254,245,219,.22));border-radius:14px;background:var(--bg,#262F35);color:var(--cream,#FEF5DB);font:400 15px "DM Sans",Arial,sans-serif;transition:border-color .2s,box-shadow .2s}
+  .field input:focus{outline:none;border-color:var(--gold,#DFB230);box-shadow:0 0 0 3px rgba(223,178,48,.2)}
+  .field input[readonly]{color:var(--muted,#A9B5BC);cursor:not-allowed}
+  .field input:disabled{opacity:.65;cursor:wait}
+  .field-hint{margin:0;color:var(--muted,#A9B5BC);font:400 12px/1.5 "DM Sans",Arial,sans-serif}
+  .settings-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:22px}
+  .settings-btn{display:inline-flex;justify-content:center;align-items:center;min-height:46px;padding:0 21px;border:2px solid var(--gold,#DFB230);border-radius:999px;background:var(--gold,#DFB230);color:var(--bg,#262F35);font:700 14px "DM Sans",Arial,sans-serif;cursor:pointer;transition:transform .15s,background-color .2s,color .2s}
+  .settings-btn:hover{transform:translateY(-2px);background:transparent;color:var(--cream,#FEF5DB)}
+  .settings-btn:active{transform:scale(.98)}
+  .settings-btn:focus-visible{outline:3px solid var(--cream,#FEF5DB);outline-offset:3px}
+  .settings-btn:disabled{opacity:.55;cursor:wait;transform:none}
+  .settings-btn.secondary{background:transparent;color:var(--cream,#FEF5DB);border-color:var(--line,rgba(254,245,219,.22))}
+  .settings-btn.secondary:hover{border-color:var(--gold,#DFB230);color:var(--gold,#DFB230)}
+  .settings-btn.danger{background:transparent;color:#FF8A80;border-color:#FF8A80}
+  .settings-btn.danger:hover{background:#FF8A80;color:var(--bg,#262F35)}
+  .notice{display:none;margin:0 0 20px;padding:12px 15px;border:1px solid var(--line,rgba(254,245,219,.22));border-radius:13px;font:500 14px/1.5 "DM Sans",Arial,sans-serif}
+  .notice.show{display:block}
+  .notice.success{border-color:#78B159;background:rgba(120,177,89,.13);color:#D7EFC9}
+  .notice.error{border-color:#FF8A80;background:rgba(255,138,128,.1);color:#FFD5D0}
+  .notice.info{border-color:var(--gold,#DFB230);background:rgba(223,178,48,.1);color:var(--cream,#FEF5DB)}
+  .account-divider{height:1px;margin:24px 0;background:var(--line,rgba(254,245,219,.22))}
+  .security-note{margin:0;color:var(--muted,#A9B5BC);font:400 12px/1.6 "DM Sans",Arial,sans-serif}
+  .gate{max-width:850px;margin:35px 0;padding:20px;border:1px solid var(--line,rgba(254,245,219,.22));border-radius:16px;color:var(--cream,#FEF5DB)}
+  .gate h2{margin:0 0 8px;font:600 27px "Crimson Text",Georgia,serif}
+  .gate p{margin:0 0 14px;color:var(--muted,#A9B5BC);font:14px/1.6 "DM Sans",Arial,sans-serif}
+  .gate a{color:var(--gold,#DFB230)}
+  .password-wrap{position:relative}
+  .password-wrap input{padding-right:76px}
+  .toggle-password{position:absolute;right:10px;top:50%;transform:translateY(-50%);padding:7px 9px;border:0;border-radius:8px;background:transparent;color:var(--gold,#DFB230);font:700 12px "DM Sans",Arial,sans-serif;cursor:pointer}
+  .toggle-password:focus-visible{outline:2px solid var(--gold,#DFB230)}
+  @media(max-width:640px){.settings-actions .settings-btn{width:100%}.card-heading h3{font-size:23px}}
+</style>
+</head>
+<body>
+<header class="wrap dash-head">
+  <a class="brand" href="index.html" aria-label="Ducks In A Row, home"><img src="assets/logo.png" alt="Ducks In A Row logo" width="90" height="90"></a>
+  <h1 class="page-title">Account</h1>
+  <div class="account" id="account">
+    <button class="acct-btn" id="acct-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="acct-menu" aria-label="Account menu">
+      <svg viewBox="0 0 25 31" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12.5" cy="9" r="5.5"/><path d="M2 29c0-6 4.7-10 10.5-10S23 23 23 29"/></svg>
+    </button>
+    <div class="acct-menu" id="acct-menu" role="menu" aria-label="Account" hidden>
+      <a role="menuitem" href="dashboard.html">Dashboard</a>
+      <a role="menuitem" href="calendar.html">Calendar</a>
+      <a role="menuitem" href="tasks.html">Task Manager</a>
+      <a role="menuitem" href="grades.html">Grade book</a>
+      <a role="menuitem" href="account.html" aria-current="page">Account</a>
+      <div class="sep" role="separator"></div>
+      <button role="menuitem" class="item" id="signout" type="button">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap account-wrap">
+  <section class="account-intro">
+    <h2>Your account, your settings.</h2>
+    <p>Manage your profile information and keep your account secure.</p>
+  </section>
+
+  <div class="gate" id="gate" role="status">Loading your account settings…</div>
+  <div id="content" hidden>
+    <p class="notice" id="notice" role="status" aria-live="polite"></p>
+    <div class="settings-grid">
+      <section class="settings-card" aria-labelledby="profile-title">
+        <div class="card-heading">
+          <div class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c.5-4.2 3.7-6.5 8-6.5s7.5 2.3 8 6.5"/></svg></div>
+          <div><h3 id="profile-title">Profile information</h3><p>Update the username associated with your account.</p></div>
+        </div>
+        <form id="profile-form" novalidate>
+          <div class="field">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" autocomplete="username" minlength="3" maxlength="64" required>
+            <p class="field-hint">Your username may be visible to other people using Ducks In A Row.</p>
+          </div>
+          <div class="field">
+            <label for="email">Email address</label>
+            <input id="email" name="email" type="email" readonly aria-readonly="true">
+            <p class="field-hint">Your email address is managed by your sign-in provider.</p>
+          </div>
+          <div class="settings-actions"><button class="settings-btn" id="save-profile" type="submit">Save changes</button></div>
+        </form>
+      </section>
+
+      <section class="settings-card" aria-labelledby="password-title">
+        <div class="card-heading">
+          <div class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg></div>
+          <div><h3 id="password-title">Password &amp; security</h3><p>Choose a strong password to help protect your account.</p></div>
+        </div>
+        <form id="password-form" novalidate>
+          <div class="field">
+            <label for="current-password">Current password</label>
+            <div class="password-wrap"><input id="current-password" name="current-password" type="password" autocomplete="current-password" required><button class="toggle-password" type="button" data-target="current-password" aria-label="Show current password">Show</button></div>
+          </div>
+          <div class="field">
+            <label for="new-password">New password</label>
+            <div class="password-wrap"><input id="new-password" name="new-password" type="password" autocomplete="new-password" minlength="8" required><button class="toggle-password" type="button" data-target="new-password" aria-label="Show new password">Show</button></div>
+            <p class="field-hint">Use at least 8 characters. A longer, unique password is recommended.</p>
+          </div>
+          <div class="field">
+            <label for="confirm-password">Confirm new password</label>
+            <div class="password-wrap"><input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" minlength="8" required><button class="toggle-password" type="button" data-target="confirm-password" aria-label="Show password confirmation">Show</button></div>
+          </div>
+          <div class="settings-actions"><button class="settings-btn" id="save-password" type="submit">Update password</button></div>
+        </form>
+        <div class="account-divider"></div>
+        <p class="security-note">If your account was created using Google or another social sign-in provider, password changes may need to be managed through that provider instead.</p>
+      </section>
+
+      <section class="settings-card" aria-labelledby="session-title">
+        <div class="card-heading">
+          <div class="card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17l5-5-5-5M15 12H3"/><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/></svg></div>
+          <div><h3 id="session-title">Account session</h3><p>Sign out of your Ducks In A Row account on this device.</p></div>
+        </div>
+        <div class="settings-actions"><button class="settings-btn danger" id="signout-main" type="button">Sign out</button></div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <img src="assets/logo.png" alt="" width="38" height="38">
+    <p><span>© Ducks In A Row.</span><span>2026</span><span>All Rights Reserved</span></p>
+  </div>
+</footer>
+
+<script src="clerk-config.js"></script>
+<script src="auth.js"></script>
+<script>
+(function () {
+  'use strict';
+  var gate = document.getElementById('gate');
+  var content = document.getElementById('content');
+  var notice = document.getElementById('notice');
+  var clerk = null;
+
+  function showNotice(message, type) {
+    notice.textContent = message;
+    notice.className = 'notice show ' + (type || 'info');
+    notice.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  function clearNotice() {
+    notice.textContent = '';
+    notice.className = 'notice';
+  }
+  function setBusy(button, busy, busyText) {
+    if (!button.dataset.originalText) button.dataset.originalText = button.textContent;
+    button.disabled = busy;
+    button.textContent = busy ? busyText : button.dataset.originalText;
+  }
+  function friendlyError(error, fallback) {
+    var message = error && error.message ? error.message : '';
+    if (/password/i.test(message) && /incorrect|invalid|wrong/i.test(message)) return 'Your current password is incorrect. Please check it and try again.';
+    if (/username/i.test(message) && /taken|already/i.test(message)) return 'That username is already in use. Please choose another one.';
+    if (/username/i.test(message) && /format|valid|length/i.test(message)) return 'Please enter a valid username. Use between 3 and 64 characters.';
+    return message || fallback;
+  }
+  function finishLoading() {
+    gate.hidden = true;
+    content.hidden = false;
+  }
+  function showSignInMessage() {
+    gate.innerHTML = '<h2>Sign in to manage your account</h2><p>You need to be signed in to view or update your account settings.</p>' +
+      (DucksAuth.routes && DucksAuth.routes.signIn ? '<p><a href="' + DucksAuth.routes.signIn.replace(/[&<>"']/g, '') + '">Go to sign in</a></p>' : '<p>Open the sign-in page to continue.</p>');
+  }
+
+  var acctBtn = document.getElementById('acct-btn');
+  var acctMenu = document.getElementById('acct-menu');
+  acctBtn.addEventListener('click', function () {
+    var open = acctBtn.getAttribute('aria-expanded') === 'true';
+    acctBtn.setAttribute('aria-expanded', String(!open));
+    acctMenu.hidden = open;
+  });
+  document.addEventListener('click', function (event) {
+    if (!document.getElementById('account').contains(event.target)) {
+      acctBtn.setAttribute('aria-expanded', 'false');
+      acctMenu.hidden = true;
+    }
+  });
+
+  document.querySelectorAll('.toggle-password').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var input = document.getElementById(button.dataset.target);
+      var reveal = input.type === 'password';
+      input.type = reveal ? 'text' : 'password';
+      button.textContent = reveal ? 'Hide' : 'Show';
+      button.setAttribute('aria-label', (reveal ? 'Hide ' : 'Show ') + input.labels[0].textContent.toLowerCase());
+    });
+  });
+
+  function signOut() {
+    if (clerk) clerk.signOut().catch(function (error) { showNotice(friendlyError(error, 'Could not sign out. Please try again.'), 'error'); });
+  }
+  document.getElementById('signout').addEventListener('click', signOut);
+  document.getElementById('signout-main').addEventListener('click', signOut);
+
+  document.getElementById('profile-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    clearNotice();
+    var usernameInput = document.getElementById('username');
+    var username = usernameInput.value.trim();
+    var button = document.getElementById('save-profile');
+    if (username.length < 3 || username.length > 64) {
+      showNotice('Username must be between 3 and 64 characters.', 'error');
+      usernameInput.focus();
+      return;
+    }
+    if (username === (clerk.user.username || '')) {
+      showNotice('Your username has not changed.', 'info');
+      return;
+    }
+    setBusy(button, true, 'Saving…');
+    try {
+      await clerk.user.update({ username: username });
+      usernameInput.value = clerk.user.username || username;
+      showNotice('Your username has been updated successfully.', 'success');
+    } catch (error) {
+      console.error('[Account] Username update failed:', error);
+      showNotice(friendlyError(error, 'Could not update your username. Please try again.'), 'error');
+    } finally {
+      setBusy(button, false);
+    }
+  });
+
+  document.getElementById('password-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    clearNotice();
+    var current = document.getElementById('current-password');
+    var next = document.getElementById('new-password');
+    var confirm = document.getElementById('confirm-password');
+    var button = document.getElementById('save-password');
+    if (next.value.length < 8) {
+      showNotice('Your new password must contain at least 8 characters.', 'error');
+      next.focus();
+      return;
+    }
+    if (next.value !== confirm.value) {
+      showNotice('The new password and confirmation do not match.', 'error');
+      confirm.focus();
+      return;
+    }
+    if (current.value === next.value) {
+      showNotice('Your new password must be different from your current password.', 'error');
+      next.focus();
+      return;
+    }
+    setBusy(button, true, 'Updating…');
+    try {
+      await clerk.user.updatePassword({ currentPassword: current.value, newPassword: next.value });
+      document.getElementById('password-form').reset();
+      document.querySelectorAll('.toggle-password').forEach(function (toggle) { toggle.textContent = 'Show'; });
+      showNotice('Your password has been updated successfully.', 'success');
+    } catch (error) {
+      console.error('[Account] Password update failed:', error);
+      showNotice(friendlyError(error, 'Could not update your password. Check your current password and try again.'), 'error');
+    } finally {
+      setBusy(button, false);
+    }
+  });
+
+  if (!window.DucksAuth) {
+    gate.textContent = 'The shared authentication helper could not be found. Make sure auth.js is in the same folder as this page.';
+    return;
+  }
+  DucksAuth.load().then(function (Clerk) {
+    clerk = Clerk;
+    if (!clerk.user) {
+      showSignInMessage();
+      return;
+    }
+    document.getElementById('username').value = clerk.user.username || '';
+    var primaryEmail = clerk.user.primaryEmailAddress;
+    document.getElementById('email').value = primaryEmail ? primaryEmail.emailAddress : 'No primary email address';
+    if (!clerk.user.username) {
+      document.getElementById('username').placeholder = 'Choose a username';
+    }
+    finishLoading();
+  }).catch(function (error) {
+    DucksAuth.showProblem(gate, error);
+  });
+})();
+</script>
+</body>
+</html>

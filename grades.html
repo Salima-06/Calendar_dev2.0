@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gradebook | Ducks In A Row</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Actor&family=Crimson+Text:wght@400;600&family=DM+Sans:wght@400;500;700&family=Delicious+Handrawn&family=Roboto+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="auth.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  :root{--gb-blue:rgba(122,168,209,.5);--field:rgba(38,47,53,.38)}
+  [hidden] { display: none !important; }  
+  .dash-head .page-title{font-size:clamp(40px,8.4vw,115px);line-height:.8;letter-spacing:-.05em;padding-top:.05em}
+  .rule{height:0;margin:clamp(10px,1.6vw,18px) 0 0;border:0;border-top:2px solid rgba(233,205,82,.55)}
+  .gb{margin-top:clamp(18px,3vw,34px);display:grid;gap:clamp(16px,2.4vw,26px)}
+  .gb-bar{display:flex;flex-wrap:wrap;align-items:center;gap:25px clamp(14px,2vw,24px)}
+  .gb-bar h2{margin:0 8px 0 0;font:400 clamp(44px,7.4vw,96px)/.8 "Delicious Handrawn","Crimson Text",cursive;letter-spacing:-.05em;color:var(--cream);flex:1 1 100%}
+  .gb-bar h2 .blue{color:var(--blue)}
+  .pill{position:relative;display:inline-flex;align-items:center;min-height:48px;border-radius:999px}
+  .switch{min-width:min(333px,100%);max-width:100%}
+  .switch select{appearance:none;-webkit-appearance:none;width:100%;min-height:48px;padding:0 48px 0 24px;border:0;border-radius:999px;background:#4a7ba5;color:var(--cream);cursor:pointer;
+    font:400 clamp(24px,2.8vw,36px)/1 "Actor",Arial,sans-serif;letter-spacing:-.03em;text-overflow:ellipsis;transition:background-color .15s ease,transform .15s ease}
+  .switch select:hover{background:#5489b5}
+  .switch select:focus-visible{outline:3px solid var(--cream);outline-offset:3px}
+  .switch select option{background:var(--bg-soft);color:var(--cream);font:400 18px "DM Sans",Arial,sans-serif}
+  .switch::after{content:"";position:absolute;right:20px;top:50%;width:11px;height:11px;margin-top:-9px;border-right:3px solid var(--cream);border-bottom:3px solid var(--cream);transform:rotate(45deg);pointer-events:none}
+  .pbtn{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 20px;border:0;border-radius:999px;cursor:pointer;font:700 15px/1 "DM Sans",Arial,sans-serif;
+    transition:background-color .2s ease,color .2s ease,transform .15s ease}
+  .pbtn .ic{font:700 28px/1 "DM Sans",Arial,sans-serif;padding-bottom:3px}
+  .pbtn:hover{transform:translateY(-2px)}
+  .pbtn:active{transform:scale(.97)}
+  .pbtn:focus-visible{outline:3px solid var(--cream);outline-offset:3px}
+  .pbtn.gold{background:var(--gold-light);color:var(--bg)}
+  .pbtn.gold:hover{background:var(--gold-hover)}
+  .pbtn.blue{background:#4a7ba5;color:var(--cream)}
+  .pbtn.blue:hover{background:#5489b5}
+  .pbtn.blue.armed{background:#C9503F;color:#fff}
+  .pbtn[disabled]{opacity:.5;pointer-events:none}
+
+  .card{position:relative;padding:clamp(18px,3vw,36px) clamp(16px,3vw,36px) clamp(18px,2.6vw,32px);border:4px solid var(--blue);border-radius:clamp(22px,2.6vw,32px);
+    background:linear-gradient(rgba(122,168,209,.5),rgba(122,168,209,.5)),url("assets/image-02388416f66569786767baa78f719781718a6f03.png") center/638px repeat,url("assets/pebbles.svg") center/360px,#38526a}
+  .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:clamp(12px,2vw,24px)}
+  .card-head h3{margin:0;min-width:0;overflow-wrap:anywhere;font:400 clamp(44px,7.4vw,96px)/.85 "Delicious Handrawn","Crimson Text",cursive;letter-spacing:-.05em;color:var(--cream)}
+  .card-cols{display:grid;gap:clamp(14px,2vw,24px);grid-template-columns:minmax(0,1fr);align-items:stretch}
+  @media (min-width:960px){.card-cols{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)}}
+  .panel{display:flex;flex-direction:column;min-width:0;padding:clamp(14px,2vw,24px);border-radius:30px;background:var(--gb-blue)}
+  .panel.ledger{background:rgba(122,168,209,.3)}
+
+  /* ledger */
+  .cols,.lrow{display:grid;gap:10px;align-items:center;grid-template-columns:minmax(0,1fr) 76px 76px 76px 104px 34px}
+  .cols{padding:0 0 8px;font:400 clamp(18px,1.9vw,26px)/1 "Delicious Handrawn","Crimson Text",cursive;color:var(--cream);letter-spacing:-.02em}
+  .cols span:not(:first-child){text-align:right}
+  .lrow{padding:5px 0}
+  .lbl{display:none}
+  .lrow input.f{width:100%;min-width:0;min-height:0;height:42px;padding:0 12px;border:2px solid transparent;border-radius:5px;background:rgba(122,168,209,.55);box-shadow:none;color:var(--cream);text-align:right;
+    font:400 17px "Actor",Arial,sans-serif;-moz-appearance:textfield;appearance:textfield;transition:border-color .15s ease,background-color .15s ease}
+  .lrow input.f.txt{text-align:left}
+  .lrow input.f::placeholder{color:rgba(254,245,219,.55)}
+  .f::-webkit-outer-spin-button,.f::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .lrow input.f:hover{background:rgba(122,168,209,.7)}
+  .lrow input.f:focus{outline:none;border-color:var(--gold-light);background:rgba(38,47,53,.45)}
+  .res{font:400 16px "Actor",Arial,sans-serif;text-align:right;white-space:nowrap;color:var(--cream)}
+  .res .l{display:inline-block;min-width:2.1em;color:var(--gold-light)}
+  .res.none{opacity:.6}
+  .xbtn{display:grid;place-items:center;width:34px;height:34px;border:0;border-radius:50%;background:transparent;color:var(--cream);font:400 24px/1 "DM Sans",Arial,sans-serif;cursor:pointer;transition:background-color .15s,color .15s}
+  .xbtn:hover{background:#FF8A80;color:var(--bg)}
+  .xbtn:focus-visible{outline:3px solid var(--cream);outline-offset:1px}
+  .ledger-foot{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:auto;padding-top:18px}
+  .hint{margin:0;font:400 14px "DM Sans",Arial,sans-serif;color:rgba(254,245,219,.85)}
+  .warn{margin:12px 0 0;padding:10px 14px;border-radius:14px;background:rgba(233,205,82,.18);border:1px solid var(--gold-light);color:var(--cream);font:400 14px/1.4 "DM Sans",Arial,sans-serif}
+  .warn[hidden]{display:none}
+
+  /* readout */
+  .msg{margin:0;font:400 clamp(26px,3vw,36px)/1.05 "Delicious Handrawn","Crimson Text",cursive;letter-spacing:-.02em;color:var(--cream);overflow-wrap:anywhere}
+  .pg{margin:clamp(8px,1.4vw,16px) 0 0;font:400 clamp(26px,3vw,40px)/1.1 "Actor",Arial,sans-serif;letter-spacing:-.03em;color:var(--cream)}
+  .pg .g{color:var(--gold-light)}
+  .big{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 14px;margin:2px 0 0;font:400 clamp(60px,8vw,96px)/1.05 "Actor",Arial,sans-serif;letter-spacing:-.04em;color:var(--gold-light)}
+  .big .pc{color:var(--cream)}
+  .big .let{font-size:.5em;letter-spacing:-.02em;color:var(--gold-light)}
+  .note{margin:0;font:400 14px/1.35 "Actor",Arial,sans-serif;color:var(--cream)}
+  .meter{position:relative;margin-top:clamp(22px,3vw,30px)}
+  .track{position:relative;display:flex;height:39px;border-radius:5px;overflow:hidden;background:rgba(254,245,219,.25)}
+  .track .earned{background:#4a7ba5;flex:none}
+  .track .left{flex:none;background:repeating-linear-gradient(135deg,rgba(254,245,219,.55) 0 5px,rgba(254,245,219,.35) 5px 9px)}
+  .mark{position:absolute;top:-4px;bottom:-4px;width:0;border-left:3px solid var(--cream);transition:left .25s ease}
+  .mark span{position:absolute;top:-24px;left:0;white-space:nowrap;font:400 18px/1 "Actor",Arial,sans-serif;color:var(--cream)}
+  .keys{display:grid;gap:8px;margin:16px 0 0;padding:0;list-style:none}
+  .keys li{display:flex;align-items:center;gap:12px;font:400 clamp(20px,2.2vw,28px)/1.1 "Actor",Arial,sans-serif;color:var(--cream)}
+  .keys i{flex:none;width:28px;height:28px;border-radius:4px}
+  .k-earn{background:#4a7ba5}.k-left{background:repeating-linear-gradient(135deg,rgba(254,245,219,.75) 0 4px,rgba(254,245,219,.45) 4px 7px)}.k-lost{background:rgba(254,245,219,.25)}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin:20px 0 0}
+  .stats div{padding-top:8px;border-top:1px solid rgba(254,245,219,.3)}
+  .stats dt{font:400 13px "DM Sans",Arial,sans-serif;color:rgba(254,245,219,.85)}
+  .stats dd{margin:0;font:400 20px "Actor",Arial,sans-serif;color:var(--cream)}
+  .readout-foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:auto;padding-top:18px}
+  details.scale{margin-top:14px;font:400 14px "DM Sans",Arial,sans-serif;color:var(--cream)}
+  details.scale summary{cursor:pointer;width:max-content;max-width:100%}
+  .scale-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:4px 12px;margin-top:10px;font:400 14px "Actor",Arial,sans-serif}
+  .scale-grid b{display:inline-block;min-width:2.2em;font-weight:400;color:var(--gold-light)}
+
+  .empty-card{padding:clamp(30px,6vw,70px) clamp(18px,4vw,40px);text-align:center;border:4px solid var(--blue);border-radius:clamp(22px,2.6vw,32px);background:rgba(122,168,209,.18)}
+  .empty-card h3{margin:0 0 10px;font:400 clamp(40px,6vw,72px)/.9 "Delicious Handrawn","Crimson Text",cursive;color:var(--cream)}
+  .empty-card p{margin:0 auto 22px;max-width:46ch;font:400 clamp(18px,2vw,22px)/1.4 "Actor",Arial,sans-serif;color:var(--cream)}
+  .gb-wrap{padding-bottom:20px}
+
+  @media (max-width:760px){
+    .cols{display:none}
+    .lrow{position:relative;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 10px;padding:12px 0;border-bottom:1px solid rgba(254,245,219,.25)}
+    .lrow .name{grid-column:1/-1;padding-right:40px}
+    .lrow .xbtn{position:absolute;top:12px;right:0}
+    .lrow .resc{grid-column:1/-1}
+    .lbl{display:block;margin-bottom:2px;font:700 11px "DM Sans",Arial,sans-serif;letter-spacing:.05em;text-transform:uppercase;color:rgba(254,245,219,.85)}
+    .res{text-align:left}
+    .lrow .name .lbl{display:none}
+  }
+
+  /* ---------- the "Adding a Course" popup ---------- */
+  dialog.gdlg{width:min(430px,calc(100% - 28px));max-height:calc(100dvh - 24px);overflow:auto;border:0;border-radius:24px;color:var(--cream);
+    background:linear-gradient(rgba(63,111,153,.93),rgba(63,111,153,.93)),url("assets/pebbles.svg") center/320px,#3f6f99;box-shadow:0 24px 60px rgba(0,0,0,.55)}
+  dialog.gdlg form{padding:clamp(18px,4vw,26px)}
+  .gdlg .gtop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .gdlg h2{margin:0;font:400 clamp(40px,8vw,48px)/.9 "Delicious Handrawn","Crimson Text",cursive;letter-spacing:-.03em;color:var(--cream)}
+  .gdlg .close{flex:none;display:grid;place-items:center;width:36px;height:36px;margin:-2px -4px 0 0;border:0;border-radius:50%;background:transparent;color:var(--gold-light);font:400 38px/1 "DM Sans",Arial,sans-serif;cursor:pointer;transform:rotate(45deg);transition:background-color .15s}
+  .gdlg .close:hover{background:rgba(255,255,255,.15)}
+  .gdlg .close:focus-visible{outline:3px solid var(--cream)}
+  .gdlg .fld{display:grid;gap:5px;margin-top:14px}
+  .gdlg label,.gdlg .lab{font:400 clamp(24px,5vw,30px)/1 "Delicious Handrawn","Crimson Text",cursive;letter-spacing:-.02em;color:var(--cream)}
+  .gdlg .lab.sm{font:400 clamp(18px,4vw,21px)/1.1 "Actor",Arial,sans-serif;letter-spacing:-.02em}
+  .gdlg input[type=text],.gdlg input[type=number]{min-height:42px;padding:0 12px;border:2px solid transparent;border-radius:12px;background:rgba(122,168,209,.55);color:var(--cream);font:400 17px "Actor",Arial,sans-serif;color-scheme:dark}
+  .gdlg select{appearance:none;-webkit-appearance:none;min-height:42px;width:100%;padding:0 40px 0 12px;border:2px solid transparent;border-radius:12px;background:rgba(122,168,209,.55) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%23FEF5DB' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 14px center;color:var(--cream);font:400 17px "Actor",Arial,sans-serif;cursor:pointer;color-scheme:dark}
+  .gdlg select:focus{outline:none;border-color:var(--gold-light);background-color:rgba(38,47,53,.35)}
+  .gdlg select option{background:var(--bg-soft);color:var(--cream)}
+  .gdlg input:focus{outline:none;border-color:var(--gold-light);box-shadow:none;background:rgba(38,47,53,.35)}
+  .gdlg .inl{display:flex;align-items:center;gap:8px}
+  .gdlg .inl input{width:92px;text-align:center}
+  .gdlg .inl span{font:400 20px "Actor",Arial,sans-serif}
+  .gdlg .ans{margin:14px 0 0;padding:9px 14px;border-radius:12px;background:rgba(122,168,209,.55);font:400 17px/1.3 "Actor",Arial,sans-serif;color:var(--cream)}
+  .gdlg .ans b{font-weight:400;color:var(--gold-light)}
+  .gdlg .ans.bad{box-shadow:inset 0 0 0 2px #FF8A80}.gdlg .ans.good{box-shadow:inset 0 0 0 2px #63A082}
+  .gdlg .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .gdlg .chips button{min-height:34px;padding:0 14px;border:0;border-radius:999px;background:rgba(122,168,209,.7);color:var(--cream);font:400 16px "Actor",Arial,sans-serif;cursor:pointer;transition:background-color .15s,color .15s}
+  .gdlg .chips button:hover{background:rgba(122,168,209,.95)}
+  .gdlg .chips button[aria-pressed=true]{background:var(--gold-light);color:var(--bg)}
+  .gdlg .chips button:focus-visible{outline:3px solid var(--cream);outline-offset:2px}
+  .gdlg hr{margin:18px 0 0;border:0;border-top:2px solid rgba(254,245,219,.55)}
+  .gdlg input[type=range]{width:100%;margin:8px 0 0;accent-color:var(--gold-light)}
+  .gdlg .sv{font:400 18px "Actor",Arial,sans-serif;color:var(--gold-light)}
+  .gdlg .gerr{min-height:1.3em;margin:10px 0 0;color:#FFD2CE;font:400 14px "DM Sans",Arial,sans-serif}
+  .gdlg .gact{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:6px}
+  .gdlg .gact .pbtn{background:rgba(122,168,209,.8);color:var(--cream)}
+  .gdlg .gact .pbtn.go{background:var(--gold-light);color:var(--bg)}
+  .gdlg .gact .pbtn.go:hover{background:var(--gold-hover)}
+  @media (prefers-reduced-motion:reduce){.mark{transition:none}}
+</style>
+</head>
+<body>
+<header class="wrap dash-head">
+  <a class="brand" href="index.html" aria-label="Ducks In A Row, home"><img src="assets/logo.png" alt="Ducks In A Row logo" width="90" height="90"></a>
+  <h1 class="page-title">Gradebook:</h1>
+
+  <div class="account" id="account">
+    <button class="acct-btn" id="acct-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="acct-menu" aria-label="Account menu">
+      <svg viewBox="0 0 25 31" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12.5" cy="9" r="5.5"/><path d="M2 29c0-6 4.7-10 10.5-10S23 23 23 29"/></svg>
+    </button>
+    <div class="acct-menu" id="acct-menu" role="menu" aria-label="Account" hidden>
+      <a role="menuitem" href="dashboard.html">Dashboard</a>
+      <a role="menuitem" href="calendar.html">Calendar</a>
+      <a role="menuitem" href="tasks.html">Task Manager</a>
+      <a role="menuitem" href="grades.html" aria-current="page">Grade book</a>
+      <a role="menuitem" href="account.html">Account</a>
+      <div class="sep" role="separator"></div>
+      <button role="menuitem" class="item" id="signout" type="button">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap gb-wrap">
+  <div class="gate" id="gate">Loading your grades…</div>
+
+  <div id="content" hidden>
+    <p class="toast" id="toast" role="alert" hidden></p>
+    <hr class="rule">
+
+    <div class="gb">
+      <div class="gb-bar">
+        <h2>Grade <span class="blue">Forecast:</span></h2>
+        <span class="pill switch" id="switch-wrap" hidden><select id="switch" aria-label="Choose a course"></select></span>
+        <button class="pbtn gold" type="button" id="add-course"><span>Add a Course</span><span class="ic" aria-hidden="true">+</span></button>
+      </div>
+
+      <section class="empty-card" id="empty" hidden>
+        <h3>No courses yet</h3>
+        <p>Add a course, set the grade you are aiming for, then add each assessment with its weight to see where you stand.</p>
+        <button class="pbtn gold" type="button" id="add-first"><span>Add a Course</span><span class="ic" aria-hidden="true">+</span></button>
+      </section>
+
+      <section class="card" id="card" aria-labelledby="c-name" hidden>
+        <div class="card-head">
+          <h3 id="c-name"></h3>
+          <button class="pbtn blue" type="button" id="del-course"><span id="del-lbl">Delete Course</span><span class="ic" aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="card-cols">
+          <div class="panel ledger" aria-label="Assessments">
+            <div class="cols" aria-hidden="true"><span>Assessment:</span><span>Weight:</span><span>Score:</span><span>Out of:</span><span>Result:</span><span></span></div>
+            <div id="rows"></div>
+            <p class="warn" id="wwarn" role="status" hidden></p>
+            <div class="ledger-foot">
+              <button class="pbtn blue" type="button" id="add-row"><span>Add Grades</span><span class="ic" aria-hidden="true">+</span></button>
+              <p class="hint">Leave Score empty for work not yet graded.</p>
+            </div>
+          </div>
+
+          <aside class="panel readout" aria-label="Where you stand" aria-live="polite">
+            <p class="msg" id="msg"></p>
+            <p class="pg"><span class="g">Projected</span> Grade:</p>
+            <p class="big"><span id="bignum">—</span><span class="let" id="letter"></span></p>
+            <p class="note" id="curnote"></p>
+            <div class="meter">
+              <div class="track" aria-hidden="true"><div class="earned" id="b-earned"></div><div class="left" id="b-left"></div></div>
+              <div class="mark" id="mark" aria-hidden="true"><span id="mark-lbl"></span></div>
+            </div>
+            <ul class="keys">
+              <li><i class="k-earn"></i>-- Marks Earned</li>
+              <li><i class="k-left"></i>-- Marks Left</li>
+              <li><i class="k-lost"></i>-- Marks Lost</li>
+            </ul>
+            <dl class="stats">
+              <div><dt>Earned toward final</dt><dd id="s-earned">—</dd></div>
+              <div><dt>Weight graded</dt><dd id="s-graded">—</dd></div>
+              <div><dt>Weight remaining</dt><dd id="s-left">—</dd></div>
+              <div><dt>Final range</dt><dd id="s-range">—</dd></div>
+            </dl>
+            <div class="readout-foot">
+              <button class="pbtn gold" type="button" id="goals"><span>Target &amp; what-if</span></button>
+            </div>
+            <details class="scale"><summary>Letter scale used</summary><div class="scale-grid" id="scale"></div></details>
+          </aside>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <img src="assets/logo.png" alt="" width="38" height="38">
+    <p><span>© Ducks In A Row.</span><span>2026</span><span>All Rights Reserved</span></p>
+  </div>
+</footer>
+
+<!-- The "Adding a Course" popup (also used, with different words, to change a course's target) -->
+<dialog class="gdlg" id="gdlg" aria-labelledby="g-title">
+  <form id="gform" novalidate>
+    <div class="gtop">
+      <h2 id="g-title">Adding a Course:</h2>
+      <button type="button" class="close" id="g-close" aria-label="Close">+</button>
+    </div>
+    <div class="fld"><label for="g-pick" id="g-name-lbl">Course name:</label>
+      <select id="g-pick" hidden></select>
+      <input type="text" id="g-name" maxlength="80" placeholder="e.g. COMP 1405" autocomplete="off"></div>
+    <div class="fld"><label for="g-target">Target Grade:</label>
+      <div class="inl"><input type="number" id="g-target" inputmode="decimal" min="0" max="100" step="any"><span>%</span></div></div>
+    <p class="ans" id="g-need"></p>
+    <div class="chips" id="g-chips" role="group" aria-label="Quick targets"></div>
+    <hr>
+    <div class="fld"><span class="lab sm">If I average...</span>
+      <label class="lab sm" for="g-scen" style="margin-top:2px">average on remaining work: <span class="sv" id="g-scenv"></span></label>
+      <input type="range" id="g-scen" min="0" max="100" step="1"></div>
+    <p class="ans" id="g-proj"></p>
+    <p class="gerr" id="g-err" role="alert"></p>
+    <div class="gact"><button type="submit" class="pbtn go" id="g-save">Add the Course</button><button type="button" class="pbtn" id="g-cancel">Cancel</button></div>
+  </form>
+</dialog>
+
+<script src="clerk-config.js"></script>
+<script src="auth.js"></script>
+<script src="db.js"></script>
+<script src="app.js"></script>
+<script src="grade-greetings.js"></script>
+<script src="grades.js"></script>
+</body>
+</html>

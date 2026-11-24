@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>Dashboard | Ducks In A Row</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Actor&family=Crimson+Text:wght@400;600&family=DM+Sans:wght@400;500;700&family=Delicious+Handrawn&family=Roboto+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="auth.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  .quote{margin:clamp(40px,9vw,120px) 0 clamp(36px,6vw,72px) auto;width:min(640px,100%);text-align:right}
+  .quote blockquote{margin:0;font:400 clamp(26px,3.6vw,44px)/1.05 "Crimson Text",Georgia,serif;letter-spacing:-.03em;color:var(--cream)}
+  .quote blockquote .pun{color:var(--gold)}
+  .quote figcaption{margin-top:14px;font:400 clamp(20px,2.4vw,30px)/1.1 "Actor",Arial,sans-serif;letter-spacing:-.03em;color:var(--blue)}
+
+  /* ---------- cards ---------- */
+  .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,5vw,66px);align-items:stretch}
+  .card{position:relative;display:flex;flex-direction:column;min-height:clamp(380px,42vw,516px);padding:clamp(14px,2vw,24px) clamp(16px,2.2vw,28px) clamp(16px,2vw,26px);
+    border:3px solid var(--card-line);border-radius:clamp(22px,2.4vw,32px);overflow:hidden;color:#fff;
+    background:
+      linear-gradient(var(--card-blue),var(--card-blue)),
+      url("assets/image-02388416f66569786767baa78f719781718a6f03.png") center/cover,
+      url("assets/pebbles.svg") center/360px,
+      #38526a;
+    transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+  .card:hover{transform:translateY(-6px);box-shadow:0 18px 36px rgba(0,0,0,.35);border-color:#BFE0EA}
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+  .card h3{margin:0;font:400 clamp(34px,3.7vw,48px)/.85 "Delicious Handrawn","Crimson Text",cursive;letter-spacing:-.05em;color:var(--gold-light)}
+  .card h3 .w{color:#fff}
+  .add-btn{flex:none;display:grid;place-items:center;width:52px;height:52px;margin:-6px -8px 0 0;border:0;border-radius:50%;background:transparent;color:#fff;cursor:pointer;
+    font:400 54px/1 "Crimson Text",Georgia,serif;padding-bottom:6px;
+    transition:background-color .2s ease,color .2s ease,transform .2s ease}
+  .add-btn:hover{background:rgba(255,255,255,.2);color:var(--gold-hover);transform:rotate(90deg) scale(1.1)}
+  .add-btn:active{transform:rotate(90deg) scale(.92)}
+  .add-btn:focus-visible{outline:3px solid #fff;outline-offset:2px}
+  .card-sub{margin:6px 0 14px;font:500 13px/1.2 "DM Sans",Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.78)}
+  .list{list-style:none;margin:0;padding:0;display:grid;gap:4px;align-content:start;grid-auto-rows:min-content;overflow-y:auto;max-height:100%;flex:1;min-height:0}
+  .list li{position:relative;display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:start;gap:4px 8px;padding:6px 4px 6px 0;border-radius:12px;
+    font:400 clamp(17px,1.9vw,25px)/1.25 "Actor",Arial,sans-serif;transition:background-color .15s ease}
+  .list li:hover,.list li:focus-within{background:rgba(255,255,255,.12)}
+  .list .dot{width:7px;height:7px;margin:.55em 0 0 10px;border-radius:50%;background:#fff}
+  .list .main{min-width:0;overflow-wrap:anywhere}
+  .list .when{display:block;font-size:.8em;color:rgba(255,255,255,.82)}
+  .list .when.soon{color:#FFE27A}
+  .list .when.overdue{color:#FFC48A;font-weight:700}
+
+  .chk{width:20px;height:20px;margin:.35em 0 0 4px;border:2px solid #fff;border-radius:50%;background:transparent;cursor:pointer;padding:0;
+    transition:background-color .15s ease,transform .15s ease,border-color .15s ease}
+  .chk:hover{background:var(--gold-light);border-color:var(--gold-light);transform:scale(1.15)}
+  .chk:focus-visible{outline:3px solid #fff;outline-offset:2px}
+  .list li.leaving{opacity:.35;text-decoration:line-through}
+  .del{opacity:0;width:30px;height:30px;margin-top:2px;border:0;border-radius:50%;background:transparent;color:#fff;font-size:22px;line-height:1;cursor:pointer;
+    transition:opacity .15s ease,background-color .15s ease,color .15s ease}
+  .list li:hover .del,.list li:focus-within .del,.del:focus-visible{opacity:1}
+  .del:hover{background:#FF8A80;color:var(--bg)}
+  .del:focus-visible{outline:3px solid #fff;outline-offset:1px}
+  @media (hover:none){.del{opacity:.85}}
+  .empty{margin:0;padding:6px 0;font:400 clamp(16px,1.7vw,20px)/1.4 "Actor",Arial,sans-serif;color:rgba(255,255,255,.85)}
+	list .more{margin:0;padding:6px 0 0;font:500 12px/1.2 "DM Sans",Arial,sans-serif;
+    letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.72)}
+
+  /* ---------- event form extras (same look as the calendar page) ---------- */
+  .urg{margin:0;padding:0;border:0;display:grid;gap:8px}
+  .urg legend{padding:0;margin-bottom:6px;font:700 13px/1.2 "DM Sans",Arial,sans-serif}
+  .urg-opt{position:relative;display:flex;align-items:center;gap:12px;padding:11px 14px;border:2px solid var(--line);border-radius:14px;background:var(--bg);cursor:pointer;font:500 15px/1.2 "DM Sans",Arial,sans-serif;
+    transition:border-color .15s ease,background-color .15s ease,transform .15s ease}
+  .urg-opt input{position:absolute;opacity:0;inset:0;cursor:pointer}
+  .urg-opt .udot{flex:none;width:18px;height:18px;border-radius:50%;background:var(--c)}
+  .urg-opt:hover{border-color:rgba(254,245,219,.45);transform:translateY(-1px)}
+  .urg-opt:has(input:checked){border-color:var(--c);background:rgba(254,245,219,.07)}
+  .urg-opt:has(input:focus-visible){outline:3px solid var(--cream);outline-offset:2px}
+  #dlg textarea{width:100%;min-height:84px;padding:12px 14px;border-radius:14px;border:2px solid var(--line);background:var(--bg);color:var(--cream);font:400 16px/1.4 "DM Sans",Arial,sans-serif;resize:vertical;transition:border-color .2s ease,box-shadow .2s ease}
+  #dlg textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(223,178,48,.25)}
+  #dlg select{width:100%;min-height:48px;padding:0 14px;border-radius:14px;border:2px solid var(--line);background:var(--bg);color:var(--cream);font:400 16px "DM Sans",Arial,sans-serif;color-scheme:dark}
+  #dlg select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(223,178,48,.25)}
+  dialog{max-height:calc(100dvh - 32px);overflow:auto}
+  .list .dot.u-urgent{background:#DD2E44}
+  .list .dot.u-soon{background:#FDCB58}
+  .list .dot.u-chill{background:#78B159}
+
+  @media (max-width:900px){
+    .cards{grid-template-columns:1fr;max-width:560px;margin-inline:auto}
+    .card{min-height:320px}
+    .quote{text-align:left;margin-left:0}
+  }
+</style>
+</head>
+<body>
+<header class="wrap dash-head">
+  <a class="brand" href="index.html" aria-label="Ducks In A Row, home"><img src="assets/logo.png" alt="Ducks In A Row logo" width="90" height="90"></a>
+  <h1 class="page-title">Dashboard</h1>
+
+  <div class="account" id="account">
+    <button class="acct-btn" id="acct-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="acct-menu" aria-label="Account menu">
+      <svg viewBox="0 0 25 31" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12.5" cy="9" r="5.5"/><path d="M2 29c0-6 4.7-10 10.5-10S23 23 23 29"/></svg>
+    </button>
+    <div class="acct-menu" id="acct-menu" role="menu" aria-label="Account" hidden>
+      <a role="menuitem" href="dashboard.html" aria-current="page">Dashboard</a>
+      <a role="menuitem" href="calendar.html">Calendar</a>
+      <a role="menuitem" href="tasks.html">Task Manager</a>
+      <a role="menuitem" href="grades.html">Grade book</a>
+      <a role="menuitem" href="account.html">Account</a>
+      <div class="sep" role="separator"></div>
+      <button role="menuitem" class="item" id="signout" type="button">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="gate" id="gate">Loading your dashboard…</div>
+
+  <div id="content" hidden>
+    <p class="toast" id="toast" role="alert" hidden></p>
+
+    <section class="intro" aria-label="Welcome">
+      <h2 class="greeting" id="greeting" aria-live="polite"></h2>
+      <figure class="quote">
+        <blockquote id="quote-text"></blockquote>
+        <figcaption id="quote-person"></figcaption>
+      </figure>
+    </section>
+
+    <section class="cards" aria-label="Your day">
+      <article class="card" aria-labelledby="h-tasks">
+        <div class="card-top">
+          <h3 id="h-tasks">To<span class="w">’s and </span>Due<span class="w">’s:</span></h3>
+          <button class="add-btn" type="button" data-add="task" aria-label="Add a task">+</button>
+        </div>
+        <p class="card-sub">Open tasks</p>
+        <ul class="list" id="list-tasks"></ul>
+      </article>
+
+      <article class="card" aria-labelledby="h-classes">
+        <div class="card-top">
+          <h3 id="h-classes">Classes:</h3>
+          <button class="add-btn" type="button" data-add="class" aria-label="Add a class">+</button>
+        </div>
+        <p class="card-sub" id="sub-classes">Today</p>
+        <ul class="list" id="list-classes"></ul>
+      </article>
+
+      <article class="card" aria-labelledby="h-events">
+        <div class="card-top">
+          <h3 id="h-events">Events:</h3>
+          <button class="add-btn" type="button" data-add="event" aria-label="Add an event">+</button>
+        </div>
+        <p class="card-sub">Coming up</p>
+        <ul class="list" id="list-events"></ul>
+      </article>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <img src="assets/logo.png" alt="" width="38" height="38">
+    <p><span>© Ducks In A Row.</span><span>2026</span><span>All Rights Reserved</span></p>
+  </div>
+</footer>
+
+<!-- Add dialog (filled in by the script for tasks, classes and events) -->
+<dialog id="dlg" aria-labelledby="dlg-title">
+  <form id="dlg-form" novalidate>
+    <h2 id="dlg-title">Add</h2>
+    <div class="fields" id="dlg-fields"></div>
+    <p class="form-err" id="dlg-err" role="alert"></p>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-outline" id="dlg-cancel">Cancel</button>
+      <button type="submit" class="btn" id="dlg-save">Add</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="clerk-config.js"></script>
+<script src="greetings.js"></script>
+<script src="quotes.js"></script>
+<script src="auth.js"></script>
+<script src="db.js"></script>
+<script src="app.js"></script>
+<script>
+(function () {
+  var routes = DucksAuth.routes;
+  var $ = function (id) { return document.getElementById(id); };
+  var DAY_KEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+  var DAY_LABELS = { mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun' };
+  var MAX_ROWS = 5;
+  var Clerk, db, state = { profile: null, courses: [], tasks: [], classes: [], events: [], today: null };
+
+  var A = DucksApp, esc = A.esc, ymd = A.ymd, parseYmd = A.parseYmd, dayDiff = A.dayDiff,
+      dateLabel = A.dateLabel, fmtTime = A.fmtTime, fmtRange = A.fmtRange, nowInfo = A.nowInfo;
+
+  /* ---------- quote of the day (chosen from quotes.js) ---------- */
+  function hash(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function pickQuote(list) {
+    // New random quote every sign-in; the same one while that sign-in lasts (so a refresh doesn't change it).
+    var sid = (Clerk.session && Clerk.session.id) || 'anon', saved = null, last = null;
+    var sig = function (q) { return (q.text || '') + '|' + (q.pun || '') + '|' + (q.person || ''); };
+    try { saved = JSON.parse(sessionStorage.getItem('ducks_quote') || 'null'); } catch (e) {}
+    try { last = localStorage.getItem('ducks_last_quote'); } catch (e) {}
+    if (saved && saved.sid === sid) {
+      for (var i = 0; i < list.length; i++) if (sig(list[i]) === saved.sig) return list[i];
+    }
+    var choices = list.filter(function (q) { return sig(q) !== last; });   // never the one shown at the previous sign-in
+    if (!choices.length) choices = list;
+    var q = choices[Math.floor(Math.random() * choices.length)];
+    try { sessionStorage.setItem('ducks_quote', JSON.stringify({ sid: sid, sig: sig(q) })); } catch (e) {}
+    try { localStorage.setItem('ducks_last_quote', sig(q)); } catch (e) {}
+    return q;
+  }
+  function renderQuote() {
+    var list = (window.DUCKS_QUOTES || []).filter(function (q) { return q && (q.text || q.pun); });
+    var box = document.querySelector('.quote');
+    if (!list.length) { box.hidden = true; return; }
+    var q = pickQuote(list), t = $('quote-text'), text = (q.text || '').replace(/\s+$/, '');
+    t.textContent = '';
+    if (text) t.appendChild(document.createTextNode('\u201c' + text + (q.pun ? ' ' : '')));
+    else t.appendChild(document.createTextNode('\u201c'));
+    if (q.pun) { var sp = document.createElement('span'); sp.className = 'pun'; sp.textContent = q.pun; t.appendChild(sp); }
+    t.appendChild(document.createTextNode('\u201d'));
+    $('quote-person').textContent = q.person || '';
+    $('quote-person').hidden = !q.person;
+  }
+
+  /* ---------- cards ---------- */
+  function li(inner, delLabel, kind, id, markerHtml) {
+    return '<li data-kind="' + kind + '" data-id="' + esc(id) + '">' + markerHtml +
+      '<span class="main">' + inner + '</span>' +
+      '<button type="button" class="del" data-del="' + kind + '" data-id="' + esc(id) + '" aria-label="' + esc(delLabel) + '" title="Delete">×</button></li>';
+  }
+  function capRows(rows) {
+    var extra = rows.length - MAX_ROWS;
+    var shown = rows.slice(0, MAX_ROWS);
+    if (extra > 0) {
+      shown.push('<li class="more-li" style="display:block"><p class="more">+' + extra + ' more</p></li>');
+    }
+    return shown;
+  }
+  function renderTasks() {
+    var info = nowInfo(state.profile && state.profile.timezone);
+    var items = state.tasks.map(function (k) {
+      var d = A.describeTask(k, info);
+      return li(esc(k.title) + (d.text ? '<span class="when ' + d.state + '">' + esc(d.text) + '</span>' : ''),
+        'Delete task: ' + k.title, 'task', k.id,
+        '<button type="button" class="chk" data-done="' + esc(k.id) + '" aria-label="Mark done: ' + esc(k.title) + '" title="Mark done"></button>');
+    });
+    items = capRows(items);
+	$('list-tasks').innerHTML = items.length ? items.join('') : '<li class="empty-li" style="display:block"><p class="empty">Nothing due. Tap + to add a task.</p></li>';
+  }
+  function renderClasses() {
+    var t = state.today;
+    $('sub-classes').textContent = 'Today · ' + dateLabel(t.date);
+    var todays = state.classes.filter(function (c) { return c.days.indexOf(t.dayKey) !== -1; }).sort(function (a, b) {
+      if (a.all_day !== b.all_day) return a.all_day ? -1 : 1;                 // all-day classes first
+      return (a.start_time || '').localeCompare(b.start_time || '') || a.title.localeCompare(b.title);
+    });
+    var items = todays.map(function (c) {
+      return li(esc(c.title) + '<span class="when">' + esc(fmtRange(c.all_day ? null : c.start_time, c.end_time)) + '</span>',
+        'Delete class: ' + c.title, 'class', c.id, '<span class="dot" aria-hidden="true"></span>');
+    });
+    var msg = state.classes.length ? 'No classes today. Enjoy!' : 'No classes yet. Tap + to add one.';
+    items = capRows(items);
+	$('list-classes').innerHTML = items.length ? items.join('') : '<li class="empty-li" style="display:block"><p class="empty">' + msg + '</p></li>';
+  }
+  function renderEvents() {
+    var t = state.today;
+    var upcoming = state.events.filter(function (e) { return (e.end_date || e.event_date) >= t.date; });
+    var items = upcoming.map(function (e) {
+      var d = e.event_date <= t.date ? 0 : dayDiff(e.event_date, t.date);
+      var day = d === 0 ? 'Today' : d === 1 ? 'Tomorrow' : dateLabel(e.event_date);
+      return li(esc(e.title) + '<span class="when">' + esc(day + ' · ' + fmtRange(e.all_day ? null : e.start_time, e.end_time)) + '</span>',
+        'Delete event: ' + e.title, 'event', e.id, '<span class="dot u-' + esc(e.urgency || 'chill') + '" aria-hidden="true"></span>');
+    });
+    items = capRows(items);
+	$('list-events').innerHTML = items.length ? items.join('') : '<li class="empty-li" style="display:block"><p class="empty">Nothing coming up. Tap + to add an event.</p></li>';
+  }
+  function renderAll() { renderTasks(); renderClasses(); renderEvents(); }
+
+  function showError(err) {
+    A.toast(err);
+  }
+
+  /* ---------- tick off / delete ---------- */
+  document.addEventListener('click', function (e) {
+    var done = e.target.closest('[data-done]'), del = e.target.closest('[data-del]');
+    if (done) {
+      var id = done.getAttribute('data-done'), row = done.closest('li'); row.classList.add('leaving');
+      DucksDB.setTaskDone(db, id, true).then(function () {
+        state.tasks = state.tasks.filter(function (x) { return x.id !== id; }); renderTasks(); A.changed();
+      }).catch(function (err) { row.classList.remove('leaving'); showError(err); });
+    } else if (del) {
+      var kind = del.getAttribute('data-del'), did = del.getAttribute('data-id');
+      var fn = { task: DucksDB.deleteTask, 'class': DucksDB.deleteClass, event: DucksDB.deleteEvent }[kind];
+      var key = { task: 'tasks', 'class': 'classes', event: 'events' }[kind];
+      fn(db, did).then(function () {
+        state[key] = state[key].filter(function (x) { return x.id !== did; }); renderAll(); if (kind === 'task') A.changed();
+      }).catch(showError);
+    }
+  });
+
+  /* ---------- the "add" dialog ---------- */
+  var dlg = $('dlg'), kindNow = null;
+  function timeFields() {
+    return '<label class="check"><input type="checkbox" id="f-allday"> All day</label>' +
+      '<div class="row2"><div class="field"><label for="f-start">Starts</label><input type="time" id="f-start"></div>' +
+      '<div class="field"><label for="f-end">Ends <span class="opt">(optional)</span></label><input type="time" id="f-end"></div></div>';
+  }
+  var FORMS = {
+    task: { title: 'Add a task', btn: 'Add task', html:
+      '<div class="field"><label for="f-title">What needs doing?</label><input type="text" id="f-title" maxlength="160" placeholder="e.g. Essay draft" autocomplete="off"></div>' +
+      '<div class="row2"><div class="field"><label for="f-date">Due date <span class="opt">(optional)</span></label><input type="date" id="f-date"></div>' +
+      '<div class="field"><label for="f-time">Due time <span class="opt">(optional)</span></label><input type="time" id="f-time"></div></div>' },
+    'class': { title: 'Add a Carleton course', btn: 'Add course', html: null },
+    event: { title: 'Add an event', btn: 'Add event', html: null }
+  };
+  /* Same urgency levels and event form as the Calendar page */
+  var URG = {
+    urgent: { label: "Duckin' Urgent", color: '#DD2E44' },
+    soon: { label: 'Quack in a Bit', color: '#FDCB58' },
+    chill: { label: 'No Need to Get Your Feathers Ruffled', color: '#78B159' }
+  };
+  var URG_ORDER = ['urgent', 'soon', 'chill'];
+  function urgencyHtml(sel) {
+    return '<fieldset class="urg"><legend>How urgent is it?</legend>' + URG_ORDER.map(function (k) {
+      return '<label class="urg-opt" style="--c:' + URG[k].color + '"><input type="radio" name="urgency" value="' + k + '"' + (k === sel ? ' checked' : '') + '>' +
+        '<span class="udot" aria-hidden="true"></span>' + esc(URG[k].label) + '</label>';
+    }).join('') + '</fieldset>';
+  }
+  function eventFormHtml() {
+    return '<div class="field"><label for="f-title">Title</label><input type="text" id="f-title" maxlength="160" placeholder="e.g. COMP 1405 midterm" autocomplete="off"></div>' +
+      urgencyHtml('chill') +
+      '<label class="check"><input type="checkbox" id="f-allday"> All day</label>' +
+      '<div class="row2"><div class="field"><label for="f-date">Start date</label><input type="date" id="f-date"></div>' +
+      '<div class="field"><label for="f-start">Start time</label><input type="time" id="f-start"></div></div>' +
+      '<div class="row2"><div class="field"><label for="f-edate">End date <span class="opt">(optional)</span></label><input type="date" id="f-edate"></div>' +
+      '<div class="field"><label for="f-end">End time <span class="opt">(optional)</span></label><input type="time" id="f-end"></div></div>' +
+      '<div class="row2"><div class="field"><label for="f-repeat">Repeat</label><select id="f-repeat"><option value="none">Does not repeat</option><option value="weekly">Every week</option></select></div>' +
+      '<div class="field" id="f-until-wrap" hidden><label for="f-until">Repeat until</label><input type="date" id="f-until"></div></div>' +
+      '<div class="field"><label for="f-loc">Location <span class="opt">(optional)</span></label><input type="text" id="f-loc" maxlength="200" autocomplete="off"></div>' +
+      '<div class="field"><label for="f-notes">Notes <span class="opt">(optional)</span></label><textarea id="f-notes" maxlength="1000"></textarea></div>';
+  }
+  function readEvent(fail) {
+    var body = {
+      title: $('f-title').value.trim(), urgency: (document.querySelector('input[name=urgency]:checked') || {}).value || 'chill',
+      all_day: $('f-allday').checked, event_date: $('f-date').value, end_date: $('f-edate').value || null,
+      start_time: $('f-start').value || null, end_time: $('f-end').value || null,
+      location: $('f-loc').value.trim(), notes: $('f-notes').value.trim()
+    };
+    if (!body.title) { fail('Please give the event a title.'); return null; }
+    if (!body.event_date) { fail('Pick a start date.'); return null; }
+    if (body.end_date && body.end_date < body.event_date) { fail('The end date must be on or after the start date.'); return null; }
+    if (body.all_day) { body.start_time = body.end_time = null; }
+    else {
+      if (!body.start_time) { fail('Add a start time, or tick "All day".'); return null; }
+      if (body.end_date && !body.end_time) { fail('Add an end time, or clear the end date.'); return null; }
+      if (body.end_time && (body.end_date || body.event_date) + body.end_time <= body.event_date + body.start_time) { fail('The end must be after the start.'); return null; }
+    }
+    if ($('f-repeat').value === 'weekly') {
+      body.repeat = 'weekly'; body.repeat_until = $('f-until').value;
+      if (!body.repeat_until || body.repeat_until < body.event_date) { fail('Pick a "repeat until" date on or after the first date.'); return null; }
+    }
+    return body;
+  }
+  /* Same "Add a Carleton course" form as the Calendar page */
+  function termLabel(code) {
+    var m = /^(\d{4})(10|20|30)$/.exec(code || ''); if (!m) return code || '';
+    return { '10': 'Winter', '20': 'Summer', '30': 'Fall' }[m[2]] + ' ' + m[1];
+  }
+  function termOptions(today) {                          // previous, current and the next two Carleton terms
+    var y = +today.slice(0, 4), mo = +today.slice(5, 7);
+    var cur = y * 3 + (mo <= 4 ? 0 : mo <= 8 ? 1 : 2), out = [];
+    for (var i = cur - 1; i <= cur + 2; i++) {
+      var yr = Math.floor(i / 3), part = ['10', '20', '30'][i % 3];
+      out.push({ code: String(yr) + part, label: termLabel(String(yr) + part), current: i === cur });
+    }
+    return out;
+  }
+  function classFormHtml() {
+    var opts = termOptions(state.today.date).map(function (t) {
+      return '<option value="' + t.code + '"' + (t.current ? ' selected' : '') + '>' + esc(t.label) + '</option>';
+    }).join('');
+    return '<div class="field"><label for="c-term">Term</label><select id="c-term">' + opts + '</select></div>' +
+      '<div class="field"><label for="c-code">Course code</label><input type="text" id="c-code" maxlength="12" placeholder="SYSC 1006" autocomplete="off"></div>' +
+      '<div class="row2"><div class="field"><label for="c-sec">Lecture section</label><input type="text" id="c-sec" maxlength="6" placeholder="A" autocomplete="off"></div>' +
+      '<div class="field"><label for="c-labs">Lab / tutorial <span class="opt">(optional)</span></label><input type="text" id="c-labs" maxlength="40" placeholder="A2 or A2, T1" autocomplete="off"></div></div>' +
+      '<p class="card-hint" style="margin:0;font-size:13px;color:var(--muted)">Looks the course up in Carleton’s public schedule and puts its weekly meeting times on your calendar. Seats and availability are never checked.</p>';
+  }
+  function openDialog(kind) {
+    kindNow = kind;
+    var f = FORMS[kind];
+    $('dlg-title').textContent = f.title; $('dlg-save').textContent = f.btn; $('dlg-err').textContent = '';
+    $('dlg-fields').innerHTML = f.html || (kind === 'event' ? eventFormHtml() : classFormHtml());
+    if (kind === 'event') {
+      $('f-date').value = state.today.date;
+      var rep = $('f-repeat');
+      rep.addEventListener('change', function () { $('f-until-wrap').hidden = rep.value !== 'weekly'; });
+    }
+    var all = $('f-allday');
+    if (all) all.addEventListener('change', function () { $('f-start').disabled = $('f-end').disabled = all.checked; });
+    if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
+    ($('f-title') || $('c-code')).focus();
+  }
+  document.querySelectorAll('[data-add]').forEach(function (b) { b.addEventListener('click', function () { openDialog(b.getAttribute('data-add')); }); });
+  $('dlg-cancel').addEventListener('click', function () { dlg.close(); });
+  dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });      // click on the dim background
+
+  function readTimes(body, err) {
+    body.all_day = $('f-allday').checked;
+    if (body.all_day) return true;
+    body.start_time = $('f-start').value; body.end_time = $('f-end').value || null;
+    if (!body.start_time) { err('Add a start time, or tick "All day".'); return false; }
+    if (body.end_time && body.end_time <= body.start_time) { err('The end time must be after the start time.'); return false; }
+    return true;
+  }
+  $('dlg-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var errBox = $('dlg-err'), save = $('dlg-save');
+    function err(m) { errBox.textContent = m; }
+    err('');
+    if (kindNow === 'class') {
+      var code = $('c-code').value.trim(), lec = $('c-sec').value.trim();
+      if (!/^[A-Za-z]{3,4}\s*-?\s*\d{4,5}$/.test(code)) { err('Course code should look like SYSC 1006.'); return; }
+      if (!lec) { err('Enter the lecture section (for example A).'); return; }
+      var label = save.textContent; save.disabled = true; save.textContent = 'Looking it up…';
+      DucksDB.addCourse(db, { term: $('c-term').value, code: code, lecture: lec, labs: $('c-labs').value.trim() })
+        .then(function (r) {
+          return load().then(function () {
+            A.changed(); renderAll();
+            if (r.missing && r.missing.length) err('Added ' + r.course + ' (' + r.sections.join(', ') + '). Couldn’t find: ' + r.missing.join(', ') + '.');
+            else dlg.close();
+          });
+        })
+        .catch(function (ex) { err(DucksDB.friendlyError(ex)); })
+        .then(function () { save.disabled = false; save.textContent = label; });
+      return;
+    }
+    var title = $('f-title').value.trim(), body = { title: title }, call;
+    if (!title) { err('Please enter a name.'); $('f-title').focus(); return; }
+    if (kindNow === 'task') {
+      body.due_date = $('f-date').value || null; body.due_time = body.due_date ? ($('f-time').value || null) : null;
+      call = DucksDB.createTask(db, body).then(function (r) { state.tasks.push(r); state.tasks.sort(A.taskOrder); A.changed(); });
+    } else if (kindNow === 'class') {
+      body.days = Array.prototype.map.call(document.querySelectorAll('input[name=day]:checked'), function (c) { return c.value; });
+      if (!body.days.length) { err('Pick at least one day.'); return; }
+      if (!readTimes(body, err)) return;
+      call = DucksDB.createClass(db, body).then(function (r) { state.classes.push(r); });
+    } else {
+      body = readEvent(err); if (!body) return;
+      // Repeating events create several rows, so reload from the database rather than pushing one row.
+      call = DucksDB.createEvent(db, body).then(function () { return load(); }).then(function () { A.changed(); });
+    }
+    save.disabled = true;
+    call.then(function () { renderAll(); dlg.close(); })
+      .catch(function (ex) { err(DucksDB.friendlyError(ex)); })
+      .then(function () { save.disabled = false; });
+  });
+  function eventOrder(a, b) {
+    return a.event_date.localeCompare(b.event_date) || (b.all_day - a.all_day) || (a.start_time || '').localeCompare(b.start_time || '');
+  }
+
+  /* ---------- start up ---------- */
+  function showProblem(err) {
+    var g = $('gate');
+    if (err && err.message === 'NO_KEY') { DucksAuth.showProblem(g, err); return; }
+    g.innerHTML = '<div class="notice" role="alert"><h2>We hit a snag</h2><p>' + esc(DucksDB.friendlyError(err)) + '</p><button class="btn" type="button" onclick="location.reload()">Try again</button></div>';
+  }
+
+  function load() {
+    // Ask for events from yesterday on (covers any time zone); the page filters to the exact day.
+    return DucksDB.dashboard(db, ymd(new Date(Date.now() - 86400000))).then(function (d) {
+      if (!d.profile || !d.profile.onboarded) { location.replace(routes.onboarding || 'onboarding.html'); return false; }
+      state.profile = d.profile; state.courses = d.courses; state.tasks = d.tasks; state.classes = d.classes; state.events = d.events;
+      var info = nowInfo(d.profile.timezone);
+      state.today = { date: info.date, dayKey: info.dayKey };
+      return info;
+    });
+  }
+
+  DucksAuth.load().then(function (C) {
+    Clerk = C;
+    if (!Clerk.isSignedIn) { location.replace(routes.signIn || 'signin.html'); return; }
+    A.initMenu(Clerk, routes);
+    return DucksDB.client(Clerk).then(function (c) {
+      db = c;
+      return load();
+    }).then(function (info) {
+      if (!info) return;
+      A.renderGreeting($('greeting'), Clerk, state.profile, info); renderQuote(); renderAll();
+      $('gate').hidden = true; $('content').hidden = false;
+      // Stay in step with the Task Manager (and other tabs): reload when something changes or when you come back.
+      A.onChanged(function () { return load().then(function (i) { if (i) renderAll(); }); });
+      A.everyMinute(renderTasks);                       // keeps "Due in 5h 20m" ticking down
+    });
+  }).catch(showProblem);
+})();
+</script>
+</body>
+</html>

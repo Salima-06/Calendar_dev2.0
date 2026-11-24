@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>Welcome | Ducks In A Row</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=DM+Sans:wght@400;500;700&family=Delicious+Handrawn&family=Roboto+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="auth.css">
+<style>
+  .onboard{max-width:760px;padding:clamp(28px,5vw,64px) 0 24px}
+  .onboard h1{margin:0 0 6px;font:400 clamp(44px,7vw,84px)/.95 "Delicious Handrawn","Crimson Text",cursive}
+  .onboard .sub{margin:0 0 28px;color:var(--muted);font-size:18px}
+
+  /* progress */
+  .steps{display:flex;gap:10px;list-style:none;margin:0 0 28px;padding:0}
+  .steps li{flex:1;min-width:0}
+  .steps .bar{height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+  .steps .bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s ease}
+  .steps li.done .bar i,.steps li.current .bar i{width:100%}
+  .steps .label{display:block;margin-top:8px;font:700 12px/1.2 "DM Sans",Arial,sans-serif;color:var(--muted);letter-spacing:.02em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .steps li.current .label{color:var(--gold)}
+  .steps li.done .label{color:var(--cream)}
+
+  .panel{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:clamp(22px,4vw,40px)}
+  .panel h2{margin:0 0 6px;font:400 clamp(28px,3.4vw,38px)/1.1 "Crimson Text",Georgia,serif;color:var(--gold)}
+  .panel .hint{margin:0 0 24px;color:var(--muted);font-size:15px}
+  .step[hidden]{display:none}
+
+  /* fields */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .field{display:flex;flex-direction:column;gap:6px;min-width:0}
+  .field.full{grid-column:1/-1}
+  label,.legend{font:700 13px/1.2 "DM Sans",Arial,sans-serif;color:var(--cream)}
+  input[type=text],select{
+    width:100%;min-height:48px;padding:0 14px;border-radius:14px;border:2px solid var(--line);background:var(--bg);color:var(--cream);
+    font:400 16px "DM Sans",Arial,sans-serif;transition:border-color .2s ease,box-shadow .2s ease}
+  input[type=text]::placeholder{color:#7d8991}
+  input[type=text]:hover,select:hover{border-color:rgba(254,245,219,.32)}
+  input[type=text]:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(223,178,48,.25)}
+  .invalid{border-color:#FF8A80!important}
+  .err{min-height:1.2em;color:#FF8A80;font-size:13px}
+
+  /* course rows */
+  .course-head,.course-row{display:grid;grid-template-columns:1.2fr .7fr 1.2fr 44px;gap:10px;align-items:start}
+  .course-head{margin-bottom:6px;font:700 12px/1 "DM Sans",Arial,sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+  .course-row{margin-bottom:10px}
+  .icon-btn{width:44px;height:48px;border-radius:14px;border:2px solid var(--line);background:transparent;color:var(--cream);font-size:20px;cursor:pointer;
+    transition:background-color .2s ease,color .2s ease,border-color .2s ease,transform .15s ease}
+  .icon-btn:hover{background:#FF8A80;border-color:#FF8A80;color:var(--bg)}
+  .icon-btn:active{transform:scale(.94)}
+  .icon-btn:focus-visible{outline:3px solid var(--cream);outline-offset:2px}
+  .add-row{margin-top:6px}
+  .term{max-width:260px;margin-bottom:22px}
+
+  /* choice cards */
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .choice{position:relative}
+  .choice input{position:absolute;opacity:0;inset:0;cursor:pointer}
+  .choice span{display:block;padding:16px 18px;border-radius:16px;border:2px solid var(--line);background:var(--bg);font-weight:700;font-size:15px;
+    transition:border-color .2s ease,background-color .2s ease,transform .15s ease}
+  .choice span small{display:block;margin-top:2px;font-weight:400;color:var(--muted);font-size:13px}
+  .choice:hover span{border-color:rgba(254,245,219,.4);transform:translateY(-2px)}
+  .choice input:checked+span{border-color:var(--gold);background:rgba(223,178,48,.12)}
+  .choice input:focus-visible+span{outline:3px solid var(--cream);outline-offset:2px}
+  .toggle{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:20px;padding:16px 18px;border-radius:16px;border:2px solid var(--line);background:var(--bg);cursor:pointer;
+    transition:border-color .2s ease}
+  .toggle:hover{border-color:rgba(254,245,219,.4)}
+  .toggle b{display:block;font-size:15px}
+  .toggle small{color:var(--muted);font-size:13px;font-weight:400}
+  .toggle input{width:22px;height:22px;accent-color:var(--gold);cursor:pointer;flex:none}
+
+  /* review */
+  .review{display:grid;gap:14px;margin:0}
+  .review div{display:grid;grid-template-columns:150px 1fr;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+  .review div:last-child{border-bottom:0;padding-bottom:0}
+  .review dt{color:var(--muted);font-size:14px}
+  .review dd{margin:0;font-weight:500}
+  .review ul{margin:0;padding-left:18px}
+
+  .actions{display:flex;justify-content:space-between;gap:12px;margin-top:28px}
+  .actions .btn[disabled]{opacity:.55;pointer-events:none}
+  .banner-err{margin:0 0 18px;padding:12px 16px;border-radius:14px;background:rgba(255,138,128,.12);border:1px solid #FF8A80;color:#FFD2CE;font-size:14px}
+  .banner-err[hidden]{display:none}
+  .gate{padding:60px 0;text-align:center;color:var(--muted)}
+
+  @media (max-width:640px){
+    .grid,.choices{grid-template-columns:1fr}
+    .steps .label{display:none}
+    .course-head{display:none}
+    .course-row{grid-template-columns:1fr 1fr;gap:8px}
+    .course-row .labs{grid-column:1/2}
+    .course-row .del{grid-column:2/3;justify-self:end}
+    .review div{grid-template-columns:1fr;gap:2px}
+  }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap nav-row">
+    <a class="brand" href="index.html" aria-label="Ducks In A Row, home"><img src="assets/logo.png" alt="Ducks In A Row logo" width="64" height="64"></a>
+    <div class="header-right"><div id="user-button"></div></div>
+  </div>
+</header>
+
+<main class="wrap onboard" id="app">
+  <div class="gate" id="gate">Loading…</div>
+
+  <div id="flow" hidden>
+    <h1>Let’s get your ducks in a row</h1>
+    <p class="sub">Four quick steps to set up your calendar. You can change everything later.</p>
+
+    <ol class="steps" id="steps" aria-label="Progress"></ol>
+
+    <form class="panel" id="form" novalidate>
+      <p class="banner-err" id="banner" role="alert" hidden></p>
+
+      <!-- Step 1 -->
+      <section class="step" data-step="1" aria-labelledby="h-1">
+        <h2 id="h-1">About you</h2>
+        <p class="hint">So we can personalise your calendar.</p>
+        <div class="grid">
+          <div class="field full"><label for="full_name">Your name</label>
+            <input type="text" id="full_name" autocomplete="name" placeholder="e.g. Ammiel Williams"><span class="err" data-err="full_name"></span></div>
+          <div class="field"><label for="school">School</label>
+            <input type="text" id="school" value="Carleton University" autocomplete="organization"><span class="err" data-err="school"></span></div>
+          <div class="field"><label for="year_of_study">Year of study</label>
+            <select id="year_of_study">
+              <option value="">Select…</option><option>1st year</option><option>2nd year</option><option>3rd year</option><option>4th year</option><option>5th year or later</option><option>Graduate</option>
+            </select><span class="err" data-err="year_of_study"></span></div>
+          <div class="field full"><label for="program">Program <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+            <input type="text" id="program" placeholder="e.g. Computer Science"></div>
+        </div>
+      </section>
+
+      <!-- Step 2 -->
+      <section class="step" data-step="2" aria-labelledby="h-2" hidden>
+        <h2 id="h-2">Your courses</h2>
+        <p class="hint">Add the courses you’re taking so they land on your calendar. Skip this and add them later if you prefer.</p>
+        <div class="field term"><label for="term">Term</label>
+          <select id="term"></select></div>
+        <div class="course-head" aria-hidden="true"><span>Course code</span><span>Section</span><span>Lab / tutorial</span><span></span></div>
+        <div id="courses"></div>
+        <button type="button" class="btn btn-outline add-row" id="add-course">+ Add another course</button>
+        <p class="err" id="courses-err" style="margin-top:10px"></p>
+      </section>
+
+      <!-- Step 3 -->
+      <section class="step" data-step="3" aria-labelledby="h-3" hidden>
+        <h2 id="h-3">Preferences</h2>
+        <p class="hint">Make the calendar work the way you do.</p>
+        <div class="legend" style="margin-bottom:10px">Week starts on</div>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="week" value="monday" checked><span>Monday<small>Great for class schedules</small></span></label>
+          <label class="choice"><input type="radio" name="week" value="sunday"><span>Sunday<small>Classic calendar view</small></span></label>
+        </div>
+        <label class="toggle" for="reminders"><span><b>Deadline reminders</b><small>Get a nudge before assignments and tests are due</small></span><input type="checkbox" id="reminders" checked></label>
+        <div class="field" style="margin-top:20px"><label for="timezone">Time zone</label>
+          <input type="text" id="timezone" placeholder="e.g. America/Toronto"><span class="err" data-err="timezone"></span></div>
+      </section>
+
+      <!-- Step 4 -->
+      <section class="step" data-step="4" aria-labelledby="h-4" hidden>
+        <h2 id="h-4">All set?</h2>
+        <p class="hint">Check everything looks right, then finish.</p>
+        <dl class="review" id="review"></dl>
+      </section>
+
+      <div class="actions">
+        <button type="button" class="btn btn-outline" id="back">Back</button>
+        <button type="submit" class="btn" id="next">Continue</button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <img src="assets/logo.png" alt="" width="38" height="38">
+    <p><span>© Ducks In A Row.</span><span>2026</span><span>All Rights Reserved</span></p>
+  </div>
+</footer>
+
+<script src="clerk-config.js"></script>
+<script src="auth.js"></script>
+<script src="db.js"></script>
+<script>
+(function () {
+  var routes = DucksAuth.routes;
+  var STEP_NAMES = ['About you', 'Courses', 'Preferences', 'Finish'];
+  var step = 1, db = null, Clerk = null;
+  var $ = function (id) { return document.getElementById(id); };
+  var gate = $('gate'), flow = $('flow'), banner = $('banner');
+  var editing = /[?&]edit=1/.test(location.search);
+
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  function termLabel(code) {
+    var m = /^(\d{4})(10|20|30)$/.exec(code || '');
+    if (!m) return code || '';
+    return { '10': 'Winter', '20': 'Summer', '30': 'Fall' }[m[2]] + ' ' + m[1];
+  }
+  function termOptions(today) {
+    var y = +today.slice(0, 4), mo = +today.slice(5, 7);
+    var cur = y * 3 + (mo <= 4 ? 0 : mo <= 8 ? 1 : 2), out = [];
+    for (var i = cur - 1; i <= cur + 2; i++) {
+      var yr = Math.floor(i / 3), part = ['10', '20', '30'][i % 3];
+      out.push({ code: String(yr) + part, label: termLabel(String(yr) + part), current: i === cur });
+    }
+    return out;
+  }
+  function todayYmd(tz) {
+    try {
+      var parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: tz || undefined,
+        year: 'numeric', month: '2-digit', day: '2-digit'
+      }).formatToParts(new Date());
+      var map = {};
+      parts.forEach(function (p) { map[p.type] = p.value; });
+      return map.year + '-' + map.month + '-' + map.day;
+    } catch (e) {
+      var d = new Date();
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+  }
+  function populateTerms(tz, selectedCode) {
+    var opts = termOptions(todayYmd(tz));
+    if (selectedCode && !opts.some(function (o) { return o.code === selectedCode; })) {
+      opts.unshift({ code: selectedCode, label: termLabel(selectedCode), current: false });
+    }
+    $('term').innerHTML = opts.map(function (t) {
+      var isSelected = selectedCode ? t.code === selectedCode : t.current;
+      return '<option value="' + esc(t.code) + '"' + (isSelected ? ' selected' : '') + '>' + esc(t.label) + '</option>';
+    }).join('');
+  }
+
+  /* ---------- progress ---------- */
+  function renderSteps() {
+    $('steps').innerHTML = STEP_NAMES.map(function (n, i) {
+      var cls = i + 1 < step ? 'done' : (i + 1 === step ? 'current' : '');
+      return '<li class="' + cls + '"' + (i + 1 === step ? ' aria-current="step"' : '') + '><div class="bar"><i></i></div><span class="label">' + (i + 1) + '. ' + n + '</span></li>';
+    }).join('');
+  }
+  function show(n) {
+    step = n;
+    document.querySelectorAll('.step').forEach(function (s) { s.hidden = Number(s.dataset.step) !== n; });
+    $('back').style.visibility = n === 1 ? 'hidden' : 'visible';
+    $('next').textContent = n === 4 ? 'Finish setup' : 'Continue';
+    banner.hidden = true;
+    if (n === 4) renderReview();
+    renderSteps();
+    var h = document.getElementById('h-' + n); if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ---------- course rows ---------- */
+  function addRow(c) {
+    c = c || {};
+    var row = document.createElement('div');
+    row.className = 'course-row';
+    row.innerHTML =
+      '<div class="field"><input type="text" class="code" placeholder="COMP 1405" aria-label="Course code" value="' + esc(c.course_code || '') + '"></div>' +
+      '<div class="field"><input type="text" class="section" placeholder="A" aria-label="Section" maxlength="6" value="' + esc(c.section || '') + '"></div>' +
+      '<div class="field labs"><input type="text" class="labsin" placeholder="A1, B2" aria-label="Lab or tutorial sections" value="' + esc((c.lab_sections || []).join(', ')) + '"></div>' +
+      '<button type="button" class="icon-btn del" aria-label="Remove course" title="Remove">×</button>';
+    row.querySelector('.del').addEventListener('click', function () { row.remove(); });
+    $('courses').appendChild(row);
+    return row;
+  }
+  function readCourses() {
+    var out = [], bad = false, missingSec = false;
+    document.querySelectorAll('.course-row').forEach(function (row) {
+      var codeEl = row.querySelector('.code');
+      var secEl = row.querySelector('.section');
+      codeEl.classList.remove('invalid');
+      secEl.classList.remove('invalid');
+
+      var raw = codeEl.value.trim();
+      var labs = row.querySelector('.labsin').value.split(/[,;\s]+/).map(function (x) { return x.trim().toUpperCase(); }).filter(Boolean);
+      var section = secEl.value.trim().toUpperCase();
+      if (!raw && !section && !labs.length) return;      // empty row: ignore
+      var code = DucksDB.normalizeCode(raw);
+      if (!code) { codeEl.classList.add('invalid'); bad = true; return; }
+      if (!section) { secEl.classList.add('invalid'); missingSec = true; return; }
+      out.push({ course_code: code, section: section, lab_sections: labs });
+    });
+    return { list: out, bad: bad, missingSec: missingSec };
+  }
+  $('add-course').addEventListener('click', function () { addRow().querySelector('.code').focus(); });
+
+  /* ---------- validation per step ---------- */
+  function setErr(name, msg) {
+    var el = document.querySelector('[data-err="' + name + '"]'); if (el) el.textContent = msg || '';
+    var input = $(name); if (input) input.classList.toggle('invalid', !!msg);
+  }
+  function validate(n) {
+    var ok = true;
+    if (n === 1) {
+      ['full_name', 'school', 'year_of_study'].forEach(function (k) {
+        var v = $(k).value.trim();
+        var msg = v ? '' : (k === 'year_of_study' ? 'Please choose your year.' : 'This field is required.');
+        setErr(k, msg); if (msg) ok = false;
+      });
+    }
+    if (n === 2) {
+      var r = readCourses();
+      if (r.bad) {
+        $('courses-err').textContent = 'Course codes look like COMP 1405 (3–4 letters, then 4 digits).';
+        ok = false;
+      } else if (r.missingSec) {
+        $('courses-err').textContent = 'Enter a lecture section (e.g. A) for each course.';
+        ok = false;
+      } else {
+        $('courses-err').textContent = '';
+      }
+      var codes = r.list.map(function (c) { return c.course_code + '|' + c.section; });
+      if (new Set(codes).size !== codes.length) {
+        $('courses-err').textContent = 'You added the same course and section twice.';
+        ok = false;
+      }
+    }
+    if (n === 3) {
+      var tz = $('timezone').value.trim(), msg3 = '';
+      try { new Intl.DateTimeFormat('en-CA', { timeZone: tz }); } catch (e) { msg3 = 'Use a time zone like America/Toronto.'; }
+      if (!tz) msg3 = 'Time zone is required.';
+      setErr('timezone', msg3); if (msg3) ok = false;
+    }
+    return ok;
+  }
+
+  /* ---------- review + save ---------- */
+  function collect() {
+    return {
+      profile: {
+        full_name: $('full_name').value.trim(),
+        school: $('school').value.trim(),
+        program: $('program').value.trim() || null,
+        year_of_study: $('year_of_study').value,
+        timezone: $('timezone').value.trim(),
+        week_starts_on: document.querySelector('input[name=week]:checked').value,
+        reminders_enabled: $('reminders').checked,
+        onboarded: true
+      },
+      term: $('term').value,
+      courses: readCourses().list
+    };
+  }
+  function renderReview() {
+    var d = collect(), p = d.profile;
+    var courses = d.courses.length
+      ? '<ul>' + d.courses.map(function (c) { return '<li>' + esc(c.course_code) + (c.section ? ' · section ' + esc(c.section) : '') + (c.lab_sections.length ? ' · ' + esc(c.lab_sections.join(', ')) : '') + '</li>'; }).join('') + '</ul>'
+      : 'None yet. You can add courses later.';
+    $('review').innerHTML =
+      '<div><dt>Name</dt><dd>' + esc(p.full_name) + '</dd></div>' +
+      '<div><dt>School</dt><dd>' + esc(p.school) + (p.program ? ', ' + esc(p.program) : '') + ' (' + esc(p.year_of_study) + ')</dd></div>' +
+      '<div><dt>Courses · ' + esc(termLabel(d.term)) + '</dt><dd>' + courses + '</dd></div>' +
+      '<div><dt>Calendar</dt><dd>Week starts on ' + p.week_starts_on + ' · reminders ' + (p.reminders_enabled ? 'on' : 'off') + '<br>' + esc(p.timezone) + '</dd></div>';
+  }
+
+  $('back').addEventListener('click', function () { if (step > 1) show(step - 1); });
+  $('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!validate(step)) return;
+    if (step < 4) { show(step + 1); return; }
+    var d = collect(), btn = $('next');
+    btn.disabled = true; btn.textContent = 'Saving…'; banner.hidden = true;
+    DucksDB.saveOnboarding(db, { profile: d.profile, term: d.term, courses: d.courses })
+      .then(function () {
+        var chain = Promise.resolve();
+        d.courses.forEach(function (c) {
+          chain = chain.then(function () {
+            return DucksDB.addCourse(db, {
+              term: d.term,
+              code: c.course_code,
+              lecture: c.section,
+              labs: (c.lab_sections || []).join(', ')
+            });
+          });
+        });
+        return chain;
+      })
+      .then(function () { location.href = routes.afterAuth || 'dashboard.html'; })
+      .catch(function (err) {
+        banner.textContent = DucksDB.friendlyError(err); banner.hidden = false;
+        btn.disabled = false; btn.textContent = 'Finish setup';
+      });
+  });
+
+  /* ---------- boot ---------- */
+  function setup(Clerk_) {
+    Clerk = Clerk_;
+    if (!Clerk.isSignedIn) { location.replace(routes.signIn || 'signin.html'); return; }
+    Clerk.mountUserButton($('user-button'), { appearance: DucksAuth.appearance, afterSignOutUrl: routes.afterSignOut });
+    return DucksDB.client(Clerk).then(function (c) {
+      db = c;
+      return Promise.all([DucksDB.getProfile(db), DucksDB.listCourses(db)]);
+    }).then(function (res) {
+      var profile = res[0], courses = res[1];
+      if (profile && profile.onboarded && !editing) { location.replace(routes.afterAuth || 'dashboard.html'); return; }
+      $('full_name').value = (profile && profile.full_name) || Clerk.user.fullName || '';
+      if (profile) {
+        if (profile.school) $('school').value = profile.school;
+        $('program').value = profile.program || '';
+        $('year_of_study').value = profile.year_of_study || '';
+        document.querySelector('input[name=week][value=' + (profile.week_starts_on || 'monday') + ']').checked = true;
+        $('reminders').checked = profile.reminders_enabled !== false;
+      }
+      var tz = (profile && profile.timezone) || '';
+      if (!tz) { try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) { tz = ''; } }
+      $('timezone').value = tz;
+
+      var existingTerm = (courses.length && courses[0].term) ? courses[0].term : '';
+      populateTerms(tz, existingTerm);
+
+      if (courses.length) { courses.forEach(addRow); } else { addRow(); }
+      gate.hidden = true; flow.hidden = false;
+      show(1);
+    });
+  }
+
+  function problem(err) {
+    if (err && err.message === 'NO_KEY') { DucksAuth.showProblem(gate, err); return; }
+    gate.innerHTML = '<div class="notice" role="alert"><h2>We hit a snag</h2><p>' + esc(DucksDB.friendlyError(err)) + '</p></div>';
+  }
+
+  DucksAuth.load().then(setup).catch(problem);
+})();
+</script>
+</body>
+</html>

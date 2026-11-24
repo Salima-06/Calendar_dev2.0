@@ -1,0 +1,71 @@
+/* Shared by the signed-in pages (dashboard, task manager, ...). Builds on auth.css. */
+
+  :root{--card-line:#92B8C3;--card-blue:rgba(122,168,209,.45)}
+  .dash-head{display:flex;align-items:center;gap:clamp(12px,2.5vw,28px);padding:clamp(14px,2vw,24px) 0 0}
+  .dash-head .brand{flex:none;width:clamp(56px,7vw,90px);height:clamp(56px,7vw,90px);border-radius:20px}
+  .page-title{margin:0;flex:1;font:400 clamp(52px,9vw,120px)/.9 "Delicious Handrawn","Crimson Text",cursive;color:var(--cream);letter-spacing:-.01em}
+
+  /* ---------- account button + dropdown ---------- */
+  .account{position:relative;flex:none;align-self:flex-start;margin-top:6px}
+  .acct-btn{position:relative;z-index:3;display:grid;place-items:center;width:52px;height:52px;border:0;border-radius:50%;background:var(--gold);color:var(--bg);cursor:pointer;
+    transition:background-color .2s ease,transform .15s ease,box-shadow .2s ease}
+  .acct-btn:hover{background:var(--cream);transform:scale(1.07);box-shadow:0 6px 18px rgba(0,0,0,.35)}
+  .acct-btn:active{transform:scale(.95)}
+  .acct-btn:focus-visible{outline:3px solid var(--cream);outline-offset:3px}
+  .acct-btn svg{width:24px;height:28px}
+  .acct-menu{position:absolute;z-index:2;top:-8px;right:-10px;min-width:230px;padding:70px 26px 18px 26px;border-radius:28px;background:#4A545C;
+    box-shadow:0 18px 40px rgba(0,0,0,.45);transform-origin:top right;animation:pop .16s ease-out}
+  .acct-menu[hidden]{display:none}
+  @keyframes pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+  .acct-menu a,.acct-menu button.item{display:block;width:100%;margin:0 -10px;padding:7px 10px;border:0;border-radius:12px;background:none;text-align:left;cursor:pointer;
+    font:400 clamp(20px,2vw,24px)/1.3 "Actor",Arial,sans-serif;color:#fff;letter-spacing:-.01em;
+    transition:background-color .15s ease,color .15s ease,padding-left .15s ease}
+  .acct-menu a:hover,.acct-menu button.item:hover,.acct-menu a:focus-visible,.acct-menu button.item:focus-visible{background:rgba(255,255,255,.12);color:var(--gold-light);padding-left:16px;outline:none}
+  .acct-menu a[aria-current="page"]{color:var(--gold-light)}
+  .acct-menu .sep{height:1px;margin:10px 0 6px;background:rgba(255,255,255,.18)}
+  .acct-menu button.item{font-size:18px;color:#D5DCE0}
+
+  /* ---------- greeting + quote ---------- */
+  .intro{margin-top:clamp(8px,2vw,24px)}
+  .greeting{margin:0;padding-bottom:clamp(8px,1.2vw,14px);border-bottom:2px solid rgba(233,205,82,.55);
+    font:400 clamp(30px,4.6vw,60px)/1.05 "Crimson Text",Georgia,serif;letter-spacing:-.03em;color:var(--cream)}
+  .greeting .name{color:var(--gold)}
+  .greeting .g-top,.greeting .g-sub{display:block}
+  .greeting .g-sub{margin-top:.12em}
+  .toast{margin:14px 0 0;padding:12px 16px;border-radius:14px;background:rgba(255,138,128,.14);border:1px solid #FF8A80;color:#FFD2CE;font-size:15px}
+  .toast[hidden]{display:none}
+  .gate{padding:80px 0;text-align:center;color:var(--muted)}
+  .gate[hidden],#content[hidden]{display:none}
+  .gate .notice{text-align:left;max-width:560px;margin:0 auto}
+  .gate .btn{margin-top:18px}
+
+  /* ---------- "add" dialog ---------- */
+  dialog{width:min(520px,calc(100% - 32px));padding:0;border:1px solid var(--line);border-radius:var(--radius);background:var(--bg-soft);color:var(--cream)}
+  dialog::backdrop{background:rgba(15,20,24,.7);backdrop-filter:blur(3px)}
+  dialog form{padding:clamp(22px,4vw,34px)}
+  dialog h2{margin:0 0 18px;font:400 clamp(30px,4vw,40px)/1 "Delicious Handrawn","Crimson Text",cursive;color:var(--gold-light);letter-spacing:-.02em}
+  .fields{display:grid;gap:16px}
+  .field{display:flex;flex-direction:column;gap:6px;min-width:0}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  label,.legend{font:700 13px/1.2 "DM Sans",Arial,sans-serif;color:var(--cream)}
+  .opt{font-weight:400;color:var(--muted)}
+  input[type=text],input[type=date],input[type=time]{width:100%;min-height:48px;padding:0 14px;border-radius:14px;border:2px solid var(--line);background:var(--bg);color:var(--cream);
+    font:400 16px "DM Sans",Arial,sans-serif;color-scheme:dark;transition:border-color .2s ease,box-shadow .2s ease}
+  input:hover{border-color:rgba(254,245,219,.32)}
+  input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(223,178,48,.25)}
+  input:disabled{opacity:.45}
+  .days{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{position:relative}
+  .chip input{position:absolute;opacity:0;inset:0;cursor:pointer}
+  .chip span{display:block;min-width:52px;padding:11px 12px;border-radius:999px;border:2px solid var(--line);background:var(--bg);text-align:center;font:700 13px/1 "DM Sans",Arial,sans-serif;
+    transition:background-color .15s ease,border-color .15s ease,color .15s ease,transform .15s ease}
+  .chip:hover span{border-color:rgba(254,245,219,.45);transform:translateY(-2px)}
+  .chip input:checked+span{background:var(--gold);border-color:var(--gold);color:var(--bg)}
+  .chip input:focus-visible+span{outline:3px solid var(--cream);outline-offset:2px}
+  .check{display:flex;align-items:center;gap:10px;font:500 15px "DM Sans",Arial,sans-serif;cursor:pointer}
+  .check input{width:20px;height:20px;accent-color:var(--gold);cursor:pointer}
+  .form-err{min-height:1.3em;margin:14px 0 0;color:#FF8A80;font-size:14px}
+  .dlg-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:10px}
+  .dlg-actions .btn[disabled]{opacity:.6;pointer-events:none}
+
+  @media (max-width:520px){.row2{grid-template-columns:1fr}}

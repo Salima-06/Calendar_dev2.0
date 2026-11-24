@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>Sign in | Ducks In A Row</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=DM+Sans:wght@400;500;700&family=Delicious+Handrawn&family=Roboto+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="auth.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap nav-row">
+    <a class="brand" href="index.html" aria-label="Ducks In A Row, home"><img src="assets/logo.png" alt="Ducks In A Row logo" width="64" height="64"></a>
+    <nav class="nav" aria-label="Main">
+      <a href="index.html#about">Ducks?</a>
+      <a href="index.html#reviews">Reviews</a>
+      <a href="index.html#contact">Contact Us</a>
+    </nav>
+    <div class="header-right"><a class="btn btn-outline" href="index.html">Back home</a></div>
+  </div>
+</header>
+
+<main class="wrap auth">
+  <div class="auth-copy">
+    <p class="eyebrow">Welcome back</p>
+    <h1>Sign in</h1>
+    <p>Pick up where you left off. Your schedule, deadlines and courses are waiting.</p>
+    <p class="switch">New here? <a href="signup.html">Create an account</a></p>
+  </div>
+  <div class="auth-card"><div id="clerk-mount"><span class="loading">Loading…</span></div></div>
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <img src="assets/logo.png" alt="" width="38" height="38">
+    <p><span>© Ducks In A Row.</span><span>2026</span><span>All Rights Reserved</span></p>
+  </div>
+</footer>
+
+<script src="clerk-config.js"></script>
+<script src="auth.js"></script>
+<script>
+  var mount = document.getElementById('clerk-mount');
+  DucksAuth.load().then(function (Clerk) {
+    // Already signed in? Skip straight to the app.
+    if (Clerk.isSignedIn) { location.replace(DucksAuth.routes.afterAuth || 'dashboard.html'); return; }
+    mount.innerHTML = '';
+    Clerk.mountSignIn(mount, {
+      appearance: DucksAuth.appearance,
+      routing: 'hash',
+      signUpUrl: DucksAuth.routes.signUp, fallbackRedirectUrl: DucksAuth.routes.afterAuth
+    });
+  }).catch(function (err) { DucksAuth.showProblem(mount, err); });
+</script>
+</body>
+</html>

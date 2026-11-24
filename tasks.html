@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<title>Task Manager | Ducks In A Row</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Actor&family=Crimson+Text:wght@400;600&family=DM+Sans:wght@400;500;700&family=Delicious+Handrawn&family=Roboto+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="auth.css">
+<link rel="stylesheet" href="app.css">
+<style>
+  :root{--task-blue:#4486BF;--overdue:#CE9F64}
+  .dash-head .page-title{font-size:clamp(40px,8.4vw,115px);line-height:.8;letter-spacing:-.05em;padding-top:.05em}
+
+  .rule{height:0;margin:clamp(10px,1.6vw,18px) 0 0;border:0;border-top:2px solid rgba(233,205,82,.55)}
+  .tm{margin-top:clamp(18px,3vw,36px);display:grid;gap:clamp(24px,4vw,40px)}
+  .tm-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .tm h2.tm-title{margin:0;font:400 clamp(48px,7.4vw,96px)/.8 "Delicious Handrawn","Crimson Text",cursive;letter-spacing:-.05em}
+  .tm-open .tm-title{color:var(--task-blue)}
+  .tm-done .tm-title{color:var(--cream)}
+  .tm-done .tm-title .gold{color:var(--gold)}
+  .add-task{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 22px 0 14px;border:2px solid var(--task-blue);border-radius:999px;background:transparent;color:var(--cream);cursor:pointer;
+    font:700 15px/1 "DM Sans",Arial,sans-serif;transition:background-color .2s ease,color .2s ease,transform .15s ease,border-color .2s ease}
+  .add-task .plus{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--task-blue);color:var(--bg);font:700 22px/1 "DM Sans",Arial,sans-serif;padding-bottom:2px;transition:transform .2s ease}
+  .add-task:hover{background:var(--task-blue);color:var(--bg);transform:translateY(-2px)}
+  .add-task:hover .plus{background:var(--bg);color:var(--task-blue);transform:rotate(90deg)}
+  .add-task:active{transform:scale(.97)}
+  .add-task:focus-visible{outline:3px solid var(--cream);outline-offset:3px}
+
+  .tasks{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+  .tasks li{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;gap:4px clamp(14px,2.2vw,26px);padding:8px 8px 8px 2px;border-radius:16px;
+    font:400 clamp(21px,2.9vw,36px)/1.15 "Actor",Arial,sans-serif;letter-spacing:-.04em;color:var(--cream);transition:background-color .15s ease,opacity .25s ease}
+  .tasks li:hover,.tasks li:focus-within{background:rgba(254,245,219,.07)}
+  .tasks .box{flex:none;display:grid;place-items:center;width:clamp(30px,3.3vw,42px);height:clamp(30px,3.3vw,42px);margin-top:.02em;border:3px solid var(--cream);border-radius:8px;background:transparent;color:var(--bg);cursor:pointer;padding:0;
+    transition:background-color .15s ease,transform .15s ease,border-color .15s ease}
+  .tasks .box svg{width:70%;height:70%;opacity:0;transition:opacity .15s ease}
+  .tasks .box:hover{border-color:var(--gold-light);transform:scale(1.08)}
+  .tasks .box:hover svg{opacity:.5;color:var(--gold-light)}
+  .tasks .box:focus-visible{outline:3px solid var(--cream);outline-offset:3px}
+  .tasks .txt{min-width:0;overflow-wrap:anywhere;padding-top:.1em}
+  .tasks .sep{opacity:.55}
+  .tasks .when.soon{color:var(--gold-light)}
+  .tasks .when.overdue{color:var(--overdue);font-weight:700;-webkit-text-stroke:.6px var(--overdue)}
+  .tasks li.soon .ttl{color:var(--gold-light)}
+  .tasks li.overdue .ttl{color:var(--overdue);font-weight:700;-webkit-text-stroke:.6px var(--overdue)}
+  .tasks li.leaving{opacity:.3}
+  .row-actions{display:flex;gap:2px;opacity:0;transition:opacity .15s ease}
+  .tasks li:hover .row-actions,.tasks li:focus-within .row-actions,.row-actions:focus-within{opacity:1}
+  @media (hover:none){.row-actions{opacity:.9}}
+  .ibtn{display:grid;place-items:center;width:38px;height:38px;border:0;border-radius:50%;background:transparent;color:var(--cream);cursor:pointer;transition:background-color .15s ease,color .15s ease}
+  .ibtn svg{width:20px;height:20px}
+  .ibtn:hover{background:rgba(254,245,219,.18);color:var(--gold-hover)}
+  .ibtn.danger:hover{background:#FF8A80;color:var(--bg)}
+  .ibtn:focus-visible{outline:3px solid var(--cream);outline-offset:1px}
+  .empty{margin:0;padding:10px 2px;font:400 clamp(18px,2vw,24px)/1.4 "Actor",Arial,sans-serif;color:var(--muted)}
+
+  .tm-done{position:relative;padding:clamp(18px,3vw,36px) clamp(20px,3vw,36px) clamp(26px,3.4vw,44px);border:4px solid var(--blue);border-radius:clamp(22px,2.6vw,32px);min-height:220px;
+    background:linear-gradient(rgba(122,168,209,.5),rgba(122,168,209,.5)),url("assets/image-02388416f66569786767baa78f719781718a6f03.png") center/638px repeat,url("assets/pebbles.svg") center/360px,#38526a}
+  .tm-done .tm-title{margin-bottom:clamp(8px,1.5vw,18px)}
+  .tm-done .tasks li:hover,.tm-done .tasks li:focus-within{background:rgba(255,255,255,.12)}
+  .tm-done .box{background:var(--cream);border-color:var(--cream)}
+  .tm-done .box svg{opacity:1}
+  .tm-done .box:hover{background:transparent;border-color:var(--cream);color:var(--cream)}
+  .tm-done .box:hover svg{opacity:.35;color:var(--cream)}
+  .tm-done .ttl{text-decoration:line-through;text-decoration-thickness:.08em}
+  .tm-done .empty{color:rgba(255,255,255,.85)}
+
+  .tm-wrap{padding-bottom:20px}
+  @media (max-width:640px){
+    .tm-head{align-items:flex-end}
+    .add-task span.lbl{display:none}
+    .add-task{padding:0 10px}
+  }
+  .tm-title {
+  margin-bottom: 18px;
+}
+
+.tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 24px;
+}
+</style>
+</head>
+<body>
+<header class="wrap dash-head">
+  <a class="brand" href="index.html" aria-label="Ducks In A Row, home"><img src="assets/logo.png" alt="Ducks In A Row logo" width="90" height="90"></a>
+  <h1 class="page-title">To’s and Due’s:</h1>
+
+  <div class="account" id="account">
+    <button class="acct-btn" id="acct-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="acct-menu" aria-label="Account menu">
+      <svg viewBox="0 0 25 31" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12.5" cy="9" r="5.5"/><path d="M2 29c0-6 4.7-10 10.5-10S23 23 23 29"/></svg>
+    </button>
+    <div class="acct-menu" id="acct-menu" role="menu" aria-label="Account" hidden>
+      <a role="menuitem" href="dashboard.html">Dashboard</a>
+      <a role="menuitem" href="calendar.html">Calendar</a>
+      <a role="menuitem" href="tasks.html" aria-current="page">Task Manager</a>
+      <a role="menuitem" href="grades.html">Grade book</a>
+      <a role="menuitem" href="account.html">Account</a>
+      <div class="sep" role="separator"></div>
+      <button role="menuitem" class="item" id="signout" type="button">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap tm-wrap">
+  <div class="gate" id="gate">Loading your tasks…</div>
+
+  <div id="content" hidden>
+    <p class="toast" id="toast" role="alert" hidden></p>
+
+    <hr class="rule">
+
+    <div class="tm">
+      <section class="tm-open" aria-labelledby="h-open">
+        <div class="tm-head">
+          <h2 class="tm-title" id="h-open">Tasks: </h2>
+          <button class="add-task" type="button" id="add-task"><span class="plus" aria-hidden="true">+</span><span class="lbl">Add task</span></button>
+        </div>
+        <ul class="tasks" id="list-open"></ul>
+      </section>
+
+      <section class="tm-done" aria-labelledby="h-done">
+        <h2 class="tm-title" id="h-done">Off the <span class="gold">duck’s back:</span> </h2>
+        <ul class="tasks" id="list-done"></ul>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap footer-row">
+    <img src="assets/logo.png" alt="" width="38" height="38">
+    <p><span>© Ducks In A Row.</span><span>2026</span><span>All Rights Reserved</span></p>
+  </div>
+</footer>
+
+<!-- Add dialog (filled in by the script for tasks, classes and events) -->
+<dialog id="dlg" aria-labelledby="dlg-title">
+  <form id="dlg-form" novalidate>
+    <h2 id="dlg-title">Add a task</h2>
+    <div class="fields" id="dlg-fields"></div>
+    <p class="form-err" id="dlg-err" role="alert"></p>
+    <div class="dlg-actions">
+      <button type="button" class="btn btn-outline" id="dlg-cancel">Cancel</button>
+      <button type="submit" class="btn" id="dlg-save">Add</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="clerk-config.js"></script>
+<script src="auth.js"></script>
+<script src="db.js"></script>
+<script src="app.js"></script>
+<script>
+(function () {
+  var routes = DucksAuth.routes, A = DucksApp, esc = A.esc;
+  var $ = function (id) { return document.getElementById(id); };
+  var Clerk, db, state = { profile: null, open: [], done: [] }, editing = null;
+
+  var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5l5 5L19.5 7"/></svg>';
+  var PENCIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
+  var TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13M10 11v6M14 11v6"/></svg>';
+
+  function now() { return A.nowInfo(state.profile && state.profile.timezone); }
+
+  /* ---------- drawing the two lists ---------- */
+  function row(t, isDone, info) {
+    var d = isDone ? { state: 'none', text: '' } : A.describeTask(t, info);
+    var when = d.text ? '<span class="sep"> - </span><span class="when ' + d.state + '">' + esc(d.text) + '</span>' :
+      (isDone && t.due_date ? '<span class="sep"> - </span><span class="when">' + esc(A.dateLabel(t.due_date) + (t.due_time ? ', ' + A.fmtTime(t.due_time) : '')) + '</span>' : '');
+    return '<li class="' + (isDone ? 'is-done' : d.state) + '" data-id="' + esc(t.id) + '">' +
+      '<button type="button" class="box" data-toggle="' + esc(t.id) + '" aria-label="' + (isDone ? 'Mark not done: ' : 'Mark done: ') + esc(t.title) + '" title="' + (isDone ? 'Put it back on the list' : 'Mark done') + '">' + CHECK + '</button>' +
+      '<span class="txt"><span class="ttl">' + esc(t.title) + '</span>' + when + '</span>' +
+      '<span class="row-actions">' +
+        (isDone ? '' : '<button type="button" class="ibtn" data-edit="' + esc(t.id) + '" aria-label="Edit: ' + esc(t.title) + '" title="Edit">' + PENCIL + '</button>') +
+        '<button type="button" class="ibtn danger" data-del="' + esc(t.id) + '" aria-label="Delete: ' + esc(t.title) + '" title="Delete">' + TRASH + '</button>' +
+      '</span></li>';
+  }
+  function render() {
+    var info = now();
+    $('list-open').innerHTML = state.open.length ? state.open.map(function (t) { return row(t, false, info); }).join('') :
+      '<li class="empty-li" style="display:block"><p class="empty">Nothing on your plate. Use “Add task” to add one.</p></li>';
+    $('list-done').innerHTML = state.done.length ? state.done.map(function (t) { return row(t, true, info); }).join('') :
+      '<li class="empty-li" style="display:block"><p class="empty">Nothing here yet. Tick a task and it lands here.</p></li>';
+  }
+
+  /* ---------- tick, un-tick, delete, edit ---------- */
+  function find(list, id) { for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i]; return null; }
+  function without(list, id) { return list.filter(function (x) { return x.id !== id; }); }
+  function sync() { return DucksDB.tasks(db).then(function (d) { state.profile = d.profile || state.profile; state.open = d.open; state.done = d.done; render(); }); }
+
+  document.addEventListener('click', function (e) {
+    var tog = e.target.closest('[data-toggle]'), del = e.target.closest('[data-del]'), ed = e.target.closest('[data-edit]');
+    if (tog) {
+      var id = tog.getAttribute('data-toggle'), wasOpen = !!find(state.open, id), t = find(wasOpen ? state.open : state.done, id);
+      if (!t) return;
+      tog.closest('li').classList.add('leaving');
+      // Move it straight away so it feels instant; put it back if the server says no.
+      var before = { open: state.open, done: state.done };
+      if (wasOpen) { state.open = without(state.open, id); state.done = [t].concat(state.done); }
+      else { state.done = without(state.done, id); state.open = state.open.concat([t]).sort(A.taskOrder); }
+      setTimeout(render, 160);
+      DucksDB.setTaskDone(db, id, wasOpen).then(function () { A.changed(); })
+        .catch(function (err) { state.open = before.open; state.done = before.done; render(); A.toast(err); });
+    } else if (del) {
+      var did = del.getAttribute('data-del'), item = find(state.open, did) || find(state.done, did);
+      if (!item) return;
+      DucksDB.deleteTask(db, did).then(function () { state.open = without(state.open, did); state.done = without(state.done, did); render(); A.changed(); })
+        .catch(A.toast);
+    } else if (ed) {
+      openDialog(find(state.open, ed.getAttribute('data-edit')));
+    }
+  });
+
+  /* ---------- add / edit dialog ---------- */
+  var dlg = $('dlg');
+  function openDialog(task) {
+    editing = task || null;
+    $('dlg-title').textContent = task ? 'Edit task' : 'Add a task';
+    $('dlg-save').textContent = task ? 'Save' : 'Add task';
+    $('dlg-err').textContent = '';
+    $('dlg-fields').innerHTML =
+      '<div class="field"><label for="f-title">What needs doing?</label><input type="text" id="f-title" maxlength="160" placeholder="e.g. Essay draft" autocomplete="off"></div>' +
+      '<div class="row2"><div class="field"><label for="f-date">Due date <span class="opt">(optional)</span></label><input type="date" id="f-date"></div>' +
+      '<div class="field"><label for="f-time">Due time <span class="opt">(optional)</span></label><input type="time" id="f-time"></div></div>';
+    if (task) { $('f-title').value = task.title; $('f-date').value = task.due_date || ''; $('f-time').value = task.due_time || ''; }
+    if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
+    $('f-title').focus();
+  }
+  $('add-task').addEventListener('click', function () { openDialog(null); });
+  $('dlg-cancel').addEventListener('click', function () { dlg.close(); });
+  dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+  $('dlg-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var errBox = $('dlg-err'), save = $('dlg-save'), title = $('f-title').value.trim();
+    errBox.textContent = '';
+    if (!title) { errBox.textContent = 'Please enter a name.'; $('f-title').focus(); return; }
+    var body = { title: title, due_date: $('f-date').value || null };
+    body.due_time = body.due_date ? ($('f-time').value || null) : null;
+    save.disabled = true;
+    var call = editing ?
+      DucksDB.updateTask(db, editing.id, body).then(function (r) { state.open = state.open.map(function (x) { return x.id === r.id ? r : x; }).sort(A.taskOrder); }) :
+      DucksDB.createTask(db, body).then(function (r) { state.open = state.open.concat([r]).sort(A.taskOrder); });
+    call.then(function () { render(); dlg.close(); A.changed(); })
+      .catch(function (ex) { errBox.textContent = DucksDB.friendlyError(ex); })
+      .then(function () { save.disabled = false; });
+  });
+
+  /* ---------- start up ---------- */
+  function showProblem(err) {
+    var g = $('gate');
+    if (err && err.message === 'NO_KEY') { DucksAuth.showProblem(g, err); return; }
+    g.innerHTML = '<div class="notice" role="alert"><h2>We hit a snag</h2><p>' + esc(DucksDB.friendlyError(err)) + '</p><button class="btn" type="button" onclick="location.reload()">Try again</button></div>';
+  }
+  DucksAuth.load().then(function (C) {
+    Clerk = C;
+    if (!Clerk.isSignedIn) { location.replace(routes.signIn || 'signin.html'); return; }
+    A.initMenu(Clerk, routes);
+    return DucksDB.client(Clerk).then(function (c) { db = c; return DucksDB.tasks(db); }).then(function (d) {
+      if (!d.profile || !d.profile.onboarded) { location.replace(routes.onboarding || 'onboarding.html'); return; }
+      state.profile = d.profile; state.open = d.open; state.done = d.done;
+      render();
+      $('gate').hidden = true; $('content').hidden = false;
+      A.onChanged(sync);                    // another tab or the dashboard changed something: reload from the database
+      A.everyMinute(render);                // keeps "Due in 5h 20m" ticking down
+    });
+  }).catch(showProblem);
+})();
+</script>
+</body>
+</html>

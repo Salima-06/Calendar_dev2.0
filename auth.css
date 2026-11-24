@@ -1,0 +1,76 @@
+/* Shared styles for sign in, sign up and dashboard pages (matches index.html) */
+:root{
+  --bg:#262F35; --bg-soft:#2F3A41; --cream:#FEF5DB;
+  --gold:#DFB230; --gold-light:#E9CD52; --gold-hover:#FFE27A;
+  --green:#63A082; --blue:#7AA8D1; --muted:#A9B5BC; --footer:#B9A3E6;
+  --line:rgba(254,245,219,.14); --radius:28px; --max:1137px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--cream);
+  font-family:"DM Sans",Roboto,Arial,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+.wrap{width:min(var(--max),100% - 48px);margin-inline:auto}
+main{flex:1}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 24px;border-radius:999px;
+  border:2px solid transparent;font:700 14px/1 "DM Sans",Arial,sans-serif;letter-spacing:-.01em;color:var(--bg);background:var(--gold);cursor:pointer;
+  transition:background-color .2s ease,color .2s ease,transform .15s ease,box-shadow .2s ease}
+.btn:hover{background:var(--cream);box-shadow:0 8px 22px rgba(0,0,0,.35);transform:translateY(-2px)}
+.btn:active{transform:translateY(0) scale(.97);box-shadow:none;background:var(--gold-hover)}
+.btn-outline{background:transparent;color:var(--cream);border-color:var(--line)}
+.btn-outline:hover{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+.btn:focus-visible,.nav a:focus-visible,.brand:focus-visible{outline:3px solid var(--cream);outline-offset:3px}
+
+/* header */
+.site-header{position:sticky;top:0;z-index:50;background:rgba(38,47,53,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.nav-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 0}
+.brand{display:block;width:64px;height:64px;border-radius:18px;overflow:hidden;transition:transform .2s ease}
+.brand:hover{transform:rotate(-4deg) scale(1.05)}
+.brand img{width:100%;height:100%}
+.nav{display:flex;align-items:center;gap:6px;padding:6px;background:var(--gold-light);border-radius:999px}
+.nav a{padding:12px 20px;border-radius:999px;font:700 14px/1 "DM Sans",Arial,sans-serif;color:var(--bg);letter-spacing:-.01em;
+  transition:background-color .2s ease,color .2s ease,transform .15s ease}
+.nav a:hover{background:var(--bg);color:var(--cream)}
+.nav a:active{transform:scale(.95)}
+.nav a[aria-current="page"]{background:var(--bg);color:var(--cream)}
+.header-right{display:flex;align-items:center;gap:12px;min-width:120px;justify-content:flex-end}
+
+/* auth layout */
+.auth{display:grid;grid-template-columns:1fr minmax(0,460px);gap:clamp(32px,7vw,96px);align-items:center;padding:clamp(32px,6vw,80px) 0}
+.auth-copy h1{margin:0 0 18px;font:400 clamp(56px,8vw,112px)/.9 "Delicious Handrawn","Crimson Text",cursive;color:var(--cream)}
+.auth-copy p{margin:0 0 28px;max-width:34ch;font:400 clamp(17px,1.8vw,20px)/1.5 "DM Sans",Arial,sans-serif;color:var(--muted)}
+.auth-copy .eyebrow{font:400 clamp(22px,2.4vw,30px)/1.1 "Crimson Text",Georgia,serif;color:var(--green);margin:0 0 10px}
+.auth-copy .switch{font-size:15px;color:var(--muted)}
+.auth-copy .switch a{color:var(--gold);font-weight:700;border-bottom:2px solid transparent;transition:border-color .2s ease,color .2s ease}
+.auth-copy .switch a:hover{color:var(--gold-hover);border-bottom-color:var(--gold-hover)}
+.auth-card{display:flex;justify-content:center;min-height:320px}
+.auth-card>div{width:100%;display:flex;justify-content:center}
+.loading{align-self:center;color:var(--muted);font-size:15px}
+.notice{width:100%;padding:28px;border-radius:var(--radius);background:var(--bg-soft);border:1px solid var(--line);text-align:left}
+.notice h2{margin:0 0 10px;font:400 28px/1.1 "Crimson Text",Georgia,serif;color:var(--gold)}
+.notice p{margin:0;color:var(--muted);font-size:15px}
+.notice code{background:var(--bg);padding:2px 7px;border-radius:6px;color:var(--cream);font:13px "Roboto Mono",monospace}
+
+/* footer */
+footer{border-top:1px solid var(--line);margin-top:40px}
+.footer-row{display:flex;align-items:center;gap:16px;padding:24px 0 32px;flex-wrap:wrap}
+.footer-row img{width:38px;height:38px;border-radius:12px}
+.footer-row p{margin:0;flex:1;display:flex;gap:16px;flex-wrap:wrap;font:400 12px/1.4 "Roboto Mono",monospace;color:var(--footer)}
+.footer-row p span:last-child{margin-left:auto}
+
+@media (max-width:900px){
+  .auth{grid-template-columns:1fr;gap:28px}
+  .auth-copy{text-align:center}
+  .auth-copy p{margin-inline:auto}
+}
+@media (max-width:720px){
+  .wrap{width:calc(100% - 32px)}
+  .nav-row{flex-wrap:wrap;justify-content:center}
+  .nav{order:2;width:100%;justify-content:space-between;overflow-x:auto}
+  .nav a{padding:11px 12px;font-size:13px;white-space:nowrap}
+  .header-right{min-width:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}

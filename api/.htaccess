@@ -1,0 +1,15 @@
+# Keep settings and helper code private (the website only ever calls index.php).
+<FilesMatch "^(config|lib|schema|carleton|ics)\.php$">
+  Require all denied
+</FilesMatch>
+<FilesMatch "\.(json|log)$">
+  Require all denied
+</FilesMatch>
+Options -Indexes
+
+# Some hosts drop the Authorization header before PHP sees it; pass it through.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTP:Authorization} .
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
